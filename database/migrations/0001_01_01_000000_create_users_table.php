@@ -12,12 +12,22 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
+            $table->uuid('id')->primary();
+            $table->string('firstname');
+            $table->string('lastname');
             $table->string('email')->unique();
+            $table->string('mobile')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->rememberToken();
+            // $table->string('role')->default('user');
+            // $table->boolean('is_blocked')->default(false);
+            // $table->json('cart')->default(json_encode([]));
+            // $table->string('address');
+            // $table->foreignUuid('wishlist')->constrained('products');
+            // $table->date('password_changed_at');
+            // $table->string('password_reset_token');
+            // $table->date('password_reset_expires');
+            // $table->rememberToken();
             $table->timestamps();
         });
 
@@ -29,7 +39,7 @@ return new class extends Migration
 
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
-            $table->foreignId('user_id')->nullable()->index();
+            $table->foreignUuid('user_id')->nullable()->index();
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
             $table->longText('payload');
