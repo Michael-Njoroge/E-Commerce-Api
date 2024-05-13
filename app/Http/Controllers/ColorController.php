@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\EnquiryModel;
+use App\Models\Color;
 use Illuminate\Http\Request;
 
-class EnquiryModelController extends Controller
+class ColorController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +34,7 @@ class EnquiryModelController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(EnquiryModel $enquiryModel)
+    public function show(Color $color)
     {
         //
     }
@@ -42,7 +42,7 @@ class EnquiryModelController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(EnquiryModel $enquiryModel)
+    public function edit(Color $color)
     {
         //
     }
@@ -50,7 +50,7 @@ class EnquiryModelController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, EnquiryModel $enquiryModel)
+    public function update(Request $request, Color $color)
     {
         //
     }
@@ -58,7 +58,7 @@ class EnquiryModelController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(EnquiryModel $enquiryModel)
+    public function destroy(Color $color)
     {
         //
     }

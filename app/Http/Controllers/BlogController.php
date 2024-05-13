@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CartModel;
+use App\Models\Blog;
 use Illuminate\Http\Request;
 
-class CartModelController extends Controller
+class BlogController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +34,7 @@ class CartModelController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(CartModel $cartModel)
+    public function show(Blog $blog)
     {
         //
     }
@@ -42,7 +42,7 @@ class CartModelController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(CartModel $cartModel)
+    public function edit(Blog $blog)
     {
         //
     }
@@ -50,7 +50,7 @@ class CartModelController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, CartModel $cartModel)
+    public function update(Request $request, Blog $blog)
     {
         //
     }
@@ -58,7 +58,7 @@ class CartModelController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(CartModel $cartModel)
+    public function destroy(Blog $blog)
     {
         //
     }

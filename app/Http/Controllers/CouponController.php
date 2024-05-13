@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ColorModel;
+use App\Models\CouponModel;
 use Illuminate\Http\Request;
 
-class ColorModelController extends Controller
+class CouponController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +34,7 @@ class ColorModelController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ColorModel $colorModel)
+    public function show(Coupon $coupon)
     {
         //
     }
@@ -42,7 +42,7 @@ class ColorModelController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(ColorModel $colorModel)
+    public function edit(Coupon $coupon)
     {
         //
     }
@@ -50,7 +50,7 @@ class ColorModelController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ColorModel $colorModel)
+    public function update(Request $request, Coupon $coupon)
     {
         //
     }
@@ -58,7 +58,7 @@ class ColorModelController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ColorModel $colorModel)
+    public function destroy(Coupon $coupon)
     {
         //
     }

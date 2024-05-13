@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ProductModel;
+use App\Models\Enquiry;
 use Illuminate\Http\Request;
 
-class ProductModelController extends Controller
+class EnquiryController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +34,7 @@ class ProductModelController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ProductModel $productModel)
+    public function show(Enquiry $enquiry)
     {
         //
     }
@@ -42,7 +42,7 @@ class ProductModelController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(ProductModel $productModel)
+    public function edit(Enquiry $enquiry)
     {
         //
     }
@@ -50,7 +50,7 @@ class ProductModelController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ProductModel $productModel)
+    public function update(Request $request, Enquiry $enquiry)
     {
         //
     }
@@ -58,7 +58,7 @@ class ProductModelController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ProductModel $productModel)
+    public function destroy(Enquiry $enquiry)
     {
         //
     }

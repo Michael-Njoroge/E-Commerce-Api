@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\BlogModel;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
-class BlogModelController extends Controller
+class ProductController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +34,7 @@ class BlogModelController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(BlogModel $blogModel)
+    public function show(Product $product)
     {
         //
     }
@@ -42,7 +42,7 @@ class BlogModelController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(BlogModel $blogModel)
+    public function edit(Product $product)
     {
         //
     }
@@ -50,7 +50,7 @@ class BlogModelController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, BlogModel $blogModel)
+    public function update(Request $request, Product $product)
     {
         //
     }
@@ -58,7 +58,7 @@ class BlogModelController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(BlogModel $blogModel)
+    public function destroy(Product $product)
     {
         //
     }

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class EnquiryModel extends Model
+class BlogCategory extends Model
 {
     use HasFactory,HasUuids;
 }

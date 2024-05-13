@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\BrandModel;
+use App\Models\Brand;
 use Illuminate\Http\Request;
 
-class BrandModelController extends Controller
+class BrandController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +34,7 @@ class BrandModelController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(BrandModel $brandModel)
+    public function show(Brand $brand)
     {
         //
     }
@@ -42,7 +42,7 @@ class BrandModelController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(BrandModel $brandModel)
+    public function edit(Brand $brand)
     {
         //
     }
@@ -50,7 +50,7 @@ class BrandModelController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, BrandModel $brandModel)
+    public function update(Request $request, Brand $brand)
     {
         //
     }
@@ -58,7 +58,7 @@ class BrandModelController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(BrandModel $brandModel)
+    public function destroy(Brand $brand)
     {
         //
     }

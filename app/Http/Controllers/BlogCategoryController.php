@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CouponModel;
+use App\Models\BlogCategory;
 use Illuminate\Http\Request;
 
-class CouponModelController extends Controller
+class BlogCategoryController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +34,7 @@ class CouponModelController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(CouponModel $couponModel)
+    public function show(BlogCategory $blogCategory)
     {
         //
     }
@@ -42,7 +42,7 @@ class CouponModelController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(CouponModel $couponModel)
+    public function edit(BlogCategoryModel $blogCategory)
     {
         //
     }
@@ -50,7 +50,7 @@ class CouponModelController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, CouponModel $couponModel)
+    public function update(Request $request, BlogCategory $blogCategory)
     {
         //
     }
@@ -58,7 +58,7 @@ class CouponModelController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(CouponModel $couponModel)
+    public function destroy(BlogCategory $blogCategory)
     {
         //
     }
