@@ -24,7 +24,7 @@ return new class extends Migration
             // $table->json('cart')->default(json_encode([]));
             // $table->string('address');
             // $table->foreignUuid('wishlist')->constrained('products');
-            $table->string('refreshToken');
+            $table->string('refreshToken')->nullable();
             // $table->date('password_changed_at');
             // $table->string('password_reset_token');
             // $table->date('password_reset_expires');

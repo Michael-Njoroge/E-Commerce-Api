@@ -23,28 +23,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'firstname' => 'required|string|max:255',
-            'lastname' => 'required|string|max:255',
-            'email' => 'required|email|string|unique:users,email',
-            'mobile' => 'required|string|unique:users,mobile',
-            'password' => 'required|string|min:6'
-        ]);
-
-        $rawPassword = $data['password'];
-        $data['password'] = Hash::make($rawPassword);
-        $email = $data['email'];
-        $mobile = $data['mobile'];
-
-        $user = User::where('email',$email)->orWhere('mobile',$mobile)->first();
-
-        if($user){
-            return $this->sendError($error = 'User details already exists', $code = 403);
-        }
-
-        $savedData = User::create($data);
-        
-        return $this->sendResponse($result=$savedData, $message="User created successfully");
+        //
     }
 
     /**
