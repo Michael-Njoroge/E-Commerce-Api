@@ -10,9 +10,14 @@ class Controller extends BaseController
 
     public function sendResponse($result,$message,$code = 200)
     {
+        $data = $result['data'] ?? null;
+
+        if ($data !== null) {
+            $result['data'] = $data;
+        }
         $response = [
             'success' => true,
-            'data'    => $result,
+            'data'    => $data,
             'message' => $message,
         ];
 

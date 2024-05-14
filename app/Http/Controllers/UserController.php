@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -15,15 +16,9 @@ class UserController extends Controller
     {
         $users = User::paginate(20);
 
-        return $this->sendResponse($result=$users, $message="Users retrieved successfully");
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
+        return $this->sendResponse(UserResource::collection($users)
+                ->response()
+                ->getData(true), "Users retrieved successfully" );
     }
 
     /**
@@ -31,9 +26,10 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        $user = User::where('id',$user->id)->first();
         if($user){
-            return $this->sendResponse($result=$user, $message="User retrieved successfully");
+        return $this->sendResponse(UserResource::make($user)
+                ->response()
+                ->getData(true), "User retrieved successfully" );
         }
 
         return $this->sendError($error="User not found");
@@ -47,8 +43,8 @@ class UserController extends Controller
         $data = $request->validate([
             'firstname' => 'required|string|max:255',
             'lastname' => 'required|string|max:255',
-            'email' => 'required|email|string|unique:users,email',
-            'mobile' => 'required|string|unique:users,mobile',
+            'email' => 'required|email|string',
+            'mobile' => 'required|string',
          ]);
 
 
@@ -58,9 +54,11 @@ class UserController extends Controller
             return $this->sendError($error="User not found");
         }
 
-        $savedData = $user->update($data);
+        $user->update($data);
         
-        return $this->sendResponse($result=$savedData, $message="User updated successfully");
+       return $this->sendResponse(UserResource::make($user)
+                ->response()
+                ->getData(true), "User updated successfully" );
     }
 
     /**
@@ -76,5 +74,39 @@ class UserController extends Controller
         
         $user->delete();
         return $this->sendResponse($result='', $message="User deleted successfully");
+    }
+
+    //Change role
+    public function role(User $user)
+    {
+       $user = User::find($user->id);
+
+        if(!$user){
+            return $this->sendError($error="User not found");
+        }
+
+        $newRole = ($user->role === 'admin') ? 'user' : 'admin';
+        $user->update(['role' => $newRole]);
+
+         $message = 'User role was changed into ' . ($user->role === 'admin' ? 'Admin' : 'Regular User');
+
+        return $this->sendResponse(UserResource::make($user)
+                ->response()
+                ->getData(true), $message );
+
+    }
+
+      //Block/Unblock
+    public function blockUnblock(User $user)
+    {
+
+        $user->is_blocked = !$user->is_blocked;
+        $user->save();
+
+        $message = 'User was ' . ($user->is_blocked ? 'Blocked' : 'Unblocked');
+
+       return $this->sendResponse(UserResource::make($user)
+                ->response()
+                ->getData(true), $message);
     }
 }

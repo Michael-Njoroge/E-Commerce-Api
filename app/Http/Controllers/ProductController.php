@@ -12,7 +12,9 @@ class ProductController extends Controller
      */
     public function index()
     {
-        //
+        $products = Product::paginate(20);
+        return $this->sendResponse($result=$products, $message="Products retrieved successfully");
+
     }
 
     /**
@@ -28,7 +30,33 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string|max:255',
+            'slug' => 'required|string',
+            'price' => 'required',
+            'category' => 'required|string',
+            'brand' => 'required|string',
+            'quantity' => 'required|integer',
+            'sold' => 'integer|nullable',
+            'images' => 'nullable|json',
+            'color' => 'nullable|json',
+            'tag' => 'nullable|json',
+        ]);
+
+        $product = Product::where('slug',$data['slug'])->first();
+
+        if($product){
+            return $this->sendError($error = 'Product with this slug already exists', $code = 403);
+        }
+
+        $productSaved = Product::create($data);
+        $user = $request->user();
+        $user->wishlist = $productSaved->id;
+        $user->save();
+
+        return $this->sendResponse($result = $productSaved, $message = 'Product created successfully');
+
     }
 
     /**

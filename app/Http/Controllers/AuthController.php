@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-
     //Register user
     public function register(Request $request)
     {
@@ -72,8 +71,7 @@ class AuthController extends Controller
 
         $token = $user->createToken("access_token")->plainTextToken;
 
-        $user->refreshToken = $token;
-        $user->save();
+        $user->update(['refreshToken' => $token]);
 
         $cookie = Cookie::make('access_token', $user->id, minutes: 72 * 60 * 60 * 1000, httpOnly: true);
 
@@ -156,9 +154,10 @@ class AuthController extends Controller
         ]);
     }
 
+    //Logout user
     public function logout(Request $request)
     {
-        $user = Auth::user()->tokens()->delete();
+        $request->user()->currentAccessToken()->delete();
         return response()->json([
             'status' => true,
             'message' => 'Logout successful'

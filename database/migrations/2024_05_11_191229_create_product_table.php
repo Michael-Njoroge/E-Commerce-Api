@@ -26,6 +26,10 @@ return new class extends Migration
             $table->json('tags')->nullable();
             $table->timestamps();
         });
+
+         Schema::table('users', function (Blueprint $table) {
+            $table->foreignUuid('wishlist')->nullable()->constrained('products');
+        });
     }
 
     /**
