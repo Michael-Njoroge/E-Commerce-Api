@@ -12,12 +12,55 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::paginate(20);
+        try {
+        // Filtering products
+        $query = Product::query();
+
+        // Sorting products
+        $sortBy = $request->query('sort', '-created_at');
+        $sortFields = explode(',', $sortBy);
+        
+        foreach ($sortFields as $field) {
+            // Determine sorting direction (ascending or descending)
+            $direction = Str::startsWith($field, '-') ? 'desc' : 'asc';
+            $field = ltrim($field, '-');
+
+            // Apply sorting to the query
+            $query->orderBy($field, $direction);
+        }
+
+        // Paginating products
+        $page = $request->query('page');
+        $limit = $request->query('limit', 10);
+        $products = $query->paginate($limit);
+
+        // Remove fields from the request query parameters
+        $excludeFields = ['page', 'sort', 'limit'];
+        foreach ($excludeFields as $field) {
+            $request->query->remove($field);
+        }
+
+        // Convert remaining query parameters to Eloquent query
+        foreach ($request->query() as $key => $value) {
+            // Apply operators for comparison (e.g., $gte, $gt, $lte, $lt)
+            if (in_array($key, ['gte', 'gt', 'lte', 'lt'])) {
+                $key = str_replace(['gte', 'gt', 'lte', 'lt'], ['$gte', '$gt', '$lte', '$lt'], $key);
+            }
+
+            // Add conditions to the query
+            $query->where($key, $value);
+        }
+
         return $this->sendResponse(ProductResource::collection($products)
                 ->response()
                 ->getData(true), "Products retrieved successfully" );
+        }
+        catch (\Exception $e) {
+        // Handle exceptions
+        return response()->json(['error' => $e->getMessage()], 500);
+        }
     
     }
 
@@ -40,10 +83,7 @@ class ProductController extends Controller
             'price' => 'required',
             'category' => 'required|string',
             'brand' => 'required|string',
-            'quantity' => 'required|integer',
-            'images' => 'nullable|json',
-            'color' => 'nullable|json',
-            'tag' => 'nullable|json',
+            'quantity' => 'required|integer'
         ]);
 
         $slug = Str::slug($data['title']);
@@ -97,12 +137,12 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        try {
+        if($product) {
         $product->delete();
         return $this->sendResponse('', 'Product deleted successfully');
-        } catch (\Exception $e) {
-            return $this->sendError('Product not found', 404);
         }
+        
+        return $this->sendError('Product not found', 404);
 
     }
 }

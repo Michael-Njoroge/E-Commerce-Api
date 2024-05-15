@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ResetPassword;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Http\Resources\UserResource;
 
 class AuthController extends Controller
 {
@@ -162,5 +165,81 @@ class AuthController extends Controller
             'status' => true,
             'message' => 'Logout successful'
         ])->withCookie(Cookie::forget('access_token'));
+    }
+
+
+    //Update password
+    public function updatePassword(Request $request,User $user)
+    {
+        $data = $request->validate([
+            'password' => 'required',
+            'new_password' => 'required|confirmed'
+        ]);
+
+        $currentPassword = Hash::check($data['password'], $user->getAuthpassword());
+
+        if(!$currentPassword){
+            return $this->sendError($error = 'Your current password is incorrect');
+        }
+
+        $user->password = Hash::make($data['new_password']);
+        $user->save();
+
+          return $this->sendResponse(UserResource::make($user)
+                ->response()
+                ->getData(true), 'Password changed successfully');
+
+    }
+
+    //Forgot password token
+    public function forgotPassword(User $user)
+    {
+        if($user){
+            $email = $user->email;
+            $token = $user->createResetPasswordToken();
+            $user->save();
+
+            $domain = "http://localhost:8000/api/user";
+            $resetUrl = $domain.'/reset-password?email='.$email.'&token='.$token;
+
+            Mail::to($email)->send(new ResetPassword($user,$resetUrl));
+
+            return response()->json([ 
+                'status' => true,
+                'message' => 'Please check your mail, we have sent a password reset link valid for the next 10 minutes'
+            ]);
+        }
+    }
+
+    //Reset password
+    public function resetPassword(Request $request)
+    {
+        try{
+            $data = $request->validate([
+                'email' => 'required|email',
+                'token' => 'required',
+                'password' => 'required|confirmed'
+            ]);
+
+           $user = User::where([
+                ['token', '=', $data['token']],
+                ['email', '=', $data['email']]
+            ])->first();
+
+            if (!empty($user)) {
+                $userToUpdate = User::where('email', $data['email'])->first();
+                $userToUpdate->password = Hash::make($data['password']);
+                $userToUpdate->save();
+
+                $user->password_reset_token = null;
+                $user->password_reset_expires = null;
+
+                return $this->sendResponse($result = $userToUpdate, $message = "Password reset successfully");
+            } else {
+                return $this->sendError($error = "Invalid token or email provided, please try again");
+            }
+        } catch (Exception $error) {
+            return $this->sendError($error->getMessage(), $code = 500); 
+        }
     }
 }

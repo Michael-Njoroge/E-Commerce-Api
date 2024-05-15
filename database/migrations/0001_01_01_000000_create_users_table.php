@@ -24,9 +24,9 @@ return new class extends Migration
             $table->json('cart')->default(json_encode([]));
             $table->string('address')->nullable();
             $table->string('refreshToken')->nullable();
-            // $table->date('password_changed_at');
-            // $table->string('password_reset_token');
-            // $table->date('password_reset_expires');
+            $table->timestamp('password_changed_at')->nullable();
+            $table->string('password_reset_token')->nullable();
+            $table->timestamp('password_reset_expires')->nullable();
             // $table->rememberToken();
             $table->timestamps();
         });

@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -42,6 +44,23 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+     /**
+     * Create a password reset token for the user.
+     *
+     * @return string
+     */
+    public function createResetPasswordToken()
+    {
+        $resetToken = Str::random(32);
+
+        $this->password_reset_token = Hash::make($resetToken);
+        $this->password_reset_expires = now()->utc()->addMinutes(10);
+
+        $this->save();
+
+        return $resetToken;
     }
 
     public function products()

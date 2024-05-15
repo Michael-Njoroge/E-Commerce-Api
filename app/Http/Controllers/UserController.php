@@ -40,25 +40,14 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        $data = $request->validate([
-            'firstname' => 'required|string|max:255',
-            'lastname' => 'required|string|max:255',
-            'email' => 'required|email|string',
-            'mobile' => 'required|string',
-         ]);
-
-
-        $user = User::where('email',$user->email)->orWhere('mobile',$user->mobile)->first();
-
-        if(!$user){
-            return $this->sendError($error="User not found");
-        }
-
-        $user->update($data);
-        
-       return $this->sendResponse(UserResource::make($user)
+        if($user){
+            $user->update($request->all());
+            $updatedUser = User::findOrFail($user->id);
+            return $this->sendResponse(UserResource::make($updatedUser)
                 ->response()
                 ->getData(true), "User updated successfully" );
+        }
+
     }
 
     /**
