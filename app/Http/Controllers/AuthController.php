@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Resources\UserResource;
+use Exception;
 
 class AuthController extends Controller
 {
@@ -220,21 +221,20 @@ class AuthController extends Controller
                 'token' => 'required',
                 'password' => 'required|confirmed'
             ]);
+            $user = User::where('email', $data['email'])
+                    ->where('password_reset_expires', '>=', now())
+                    ->first();
 
-           $user = User::where([
-                ['token', '=', $data['token']],
-                ['email', '=', $data['email']]
-            ])->first();
-
-            if (!empty($user)) {
-                $userToUpdate = User::where('email', $data['email'])->first();
-                $userToUpdate->password = Hash::make($data['password']);
-                $userToUpdate->save();
-
+            if ($user && Hash::check($data['token'], $user->password_reset_token)) {
+                $user->password = Hash::make($data['password']);
                 $user->password_reset_token = null;
                 $user->password_reset_expires = null;
+                $user->save();
 
-                return $this->sendResponse($result = $userToUpdate, $message = "Password reset successfully");
+                return $this->sendResponse(UserResource::make($user)
+                ->response()
+                ->getData(true), "Password reset successfully" );
+
             } else {
                 return $this->sendError($error = "Invalid token or email provided, please try again");
             }

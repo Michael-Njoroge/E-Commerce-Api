@@ -23,7 +23,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function(){
     Route::put('/users/{user}',[UserController::class,'update'])->name('users.update');
     Route::put('/users/change-password/{user}',[AuthController::class,'updatePassword'])->name('users.changePassword');
     Route::post('/users/forgot-password/{user}',[AuthController::class,'forgotPassword'])->name('users.forgotPassword');
-    Route::post('/user/reset-password',[AuthController::class,'forgotPassword'])->name('users.forgotPassword');
+    Route::post('/users/reset-password',[AuthController::class,'resetPassword'])->name('users.resetPassword');
     Route::get('/logout',[AuthController::class,'logout'])->name('user.logout');
 });
 

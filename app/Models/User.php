@@ -11,6 +11,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Support\Carbon;
 
 class User extends Authenticatable
 {
@@ -56,7 +57,7 @@ class User extends Authenticatable
         $resetToken = Str::random(32);
 
         $this->password_reset_token = Hash::make($resetToken);
-        $this->password_reset_expires = now()->utc()->addMinutes(10);
+        $this->password_reset_expires = Carbon::now()->addMinutes(10);
 
         $this->save();
 
