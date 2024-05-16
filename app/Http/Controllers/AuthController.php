@@ -186,7 +186,7 @@ class AuthController extends Controller
         $user->password = Hash::make($data['new_password']);
         $user->save();
 
-          return $this->sendResponse(UserResource::make($user)
+        return $this->sendResponse(UserResource::make($user)
                 ->response()
                 ->getData(true), 'Password changed successfully');
 
@@ -200,13 +200,14 @@ class AuthController extends Controller
             $token = $user->createResetPasswordToken();
             $user->save();
 
-            $domain = "http://localhost:8000/api/user";
+            $domain = "http://localhost:8000/api/users";
             $resetUrl = $domain.'/reset-password?email='.$email.'&token='.$token;
 
             Mail::to($email)->send(new ResetPassword($user,$resetUrl));
 
             return response()->json([ 
                 'status' => true,
+                'token' => $token,
                 'message' => 'Please check your mail, we have sent a password reset link valid for the next 10 minutes'
             ]);
         }

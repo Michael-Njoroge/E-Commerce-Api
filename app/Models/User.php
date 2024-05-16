@@ -64,8 +64,18 @@ class User extends Authenticatable
         return $resetToken;
     }
 
-    public function products()
+    public function wishlist()
     {
-        return $this->hasMany(Product::class);
+        return $this->belongsToMany(Product::class, 'user_products', 'user_id', 'product_id');
+    }
+
+    public function likedBlogs()
+    {
+        return $this->hasMany(Blog::class,"likes");
+    }
+
+    public function dislikedBlogs()
+    {
+        return $this->hasMany(Blog::class,"dislikes");
     }
 }

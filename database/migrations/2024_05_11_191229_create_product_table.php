@@ -27,8 +27,13 @@ return new class extends Migration
             $table->timestamps();
         });
 
-         Schema::table('users', function (Blueprint $table) {
-            $table->foreignUuid('wishlist')->nullable()->constrained('products');
+        Schema::create('user_products', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignUuid('product_id')->constrained('products')->onDelete('cascade');
+            $table->timestamps();
+
+            $table->unique(['user_id', 'product_id']);
         });
     }
 
@@ -38,5 +43,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('products');
+        Schema::dropIfExists('user_products');
     }
 };

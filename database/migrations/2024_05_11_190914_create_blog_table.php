@@ -11,8 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('blog_models', function (Blueprint $table) {
-            $table->id();
+        Schema::create('blogs', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->string('title');
+            $table->string('description');
+            $table->string('category');
+            $table->integer('num_views')->default(0);
+            $table->boolean('is_liked')->default(false);
+            $table->boolean('is_disliked')->default(false);
+            $table->foreignUuid('likes')->nullable()->constrained('users');
+            $table->foreignUuid('dislikes')->nullable()->constrained('users');
+            $table->string('image')->default('https://www.shutterstock.com/shutterstock/photos/1029506242/display_1500/stock-photo-blogging-blog-concepts-ideas-with-white-worktable-1029506242.jpg');
+            $table->string('author')->default('Admin');
             $table->timestamps();
         });
     }
@@ -22,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('blog_models');
+        Schema::dropIfExists('blogs');
     }
 };

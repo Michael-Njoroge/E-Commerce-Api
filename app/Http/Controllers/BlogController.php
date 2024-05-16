@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\BlogResource;
 use App\Models\Blog;
 use Illuminate\Http\Request;
 
@@ -12,15 +13,10 @@ class BlogController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $blogs = Blog::with('likedBy','dislikedBy')->paginate(10);
+        return $this->sendResponse(BlogResource::collection($blogs)
+                ->response()
+                ->getData(true), "Blogs retrieved successfully" );
     }
 
     /**
@@ -28,7 +24,18 @@ class BlogController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            "title"=> "string|required",
+            "description" => "required|string",
+            "category" => "required|string"
+        ]);
+
+        $blog = Blog::create($data);
+        $createdBlog = Blog::findOrFail($blog->id);
+
+        return $this->sendResponse(BlogResource::make($createdBlog)
+                ->response()
+                ->getData(true), "Blog created successfully" );
     }
 
     /**
@@ -36,15 +43,12 @@ class BlogController extends Controller
      */
     public function show(Blog $blog)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Blog $blog)
-    {
-        //
+        if($blog){
+         return $this->sendResponse(BlogResource::make($blog)
+                ->response()
+                ->getData(true), "Blog retrieved successfully" );
+        }
+        return $this->sendError($error = "Blog is not found");
     }
 
     /**
@@ -52,7 +56,14 @@ class BlogController extends Controller
      */
     public function update(Request $request, Blog $blog)
     {
-        //
+        if($blog){
+            $blog->update($request->all());
+            $updatedBlog = Blog::findOrFail($blog->id);
+
+            return $this->sendResponse(BlogResource::make($updatedBlog)
+                ->response()
+                ->getData(true), "Blog updated successfully" );
+        }
     }
 
     /**
@@ -60,6 +71,13 @@ class BlogController extends Controller
      */
     public function destroy(Blog $blog)
     {
-        //
+        $blog = Blog::where('id',$blog->id)->first();
+
+        if(!$blog){
+            return $this->sendError($error="Blog not found");
+        }
+        
+        $blog->delete();
+        return $this->sendResponse($result='', $message="Blog deleted successfully");
     }
 }
