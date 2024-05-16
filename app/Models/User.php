@@ -71,11 +71,11 @@ class User extends Authenticatable
 
     public function likedBlogs()
     {
-        return $this->hasMany(Blog::class,"likes");
+        return $this->belongsToMany(Blog::class,"likes");
     }
 
     public function dislikedBlogs()
     {
-        return $this->hasMany(Blog::class,"dislikes");
+        return $this->belongsToMany(Blog::class,"dislikes");
     }
 }

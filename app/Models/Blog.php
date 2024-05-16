@@ -14,11 +14,11 @@ class Blog extends Model
 
     public function likedBy()
     {
-        return $this->belongsTo(User::class, "likes");
+        return $this->belongsToMany(User::class, "blog_likes");
     }
 
     public function dislikedBy()
     {
-        return $this->belongsTo(User::class, "dislikes");
+        return $this->belongsToMany(User::class, "blog_dislikes");
     }
 }

@@ -33,6 +33,11 @@ Route::middleware(['auth:sanctum', 'active'])->group(function(){
     Route::post('/users/forgot-password/{user}',[AuthController::class,'forgotPassword'])->name('users.forgotPassword');
     Route::post('/users/reset-password',[AuthController::class,'resetPassword'])->name('users.resetPassword');
     Route::get('/logout',[AuthController::class,'logout'])->name('user.logout');
+
+    //blogs
+    Route::put('/blogs/likes/{blog}',[BlogController::class,'likeBlog'])->name('blogs.like');
+    Route::put('/blogs/dislikes/{blog}',[BlogController::class,'dislikeBlog'])->name('blogs.dislike');
+
 });
 
 /////////////////////////////// ROUTES THAT REQUIRE ACTIVATION, AUTHENTICATION AND ADMIN PERMISSIONS ///////////////////

@@ -19,11 +19,27 @@ return new class extends Migration
             $table->integer('num_views')->default(0);
             $table->boolean('is_liked')->default(false);
             $table->boolean('is_disliked')->default(false);
-            $table->foreignUuid('likes')->nullable()->constrained('users');
-            $table->foreignUuid('dislikes')->nullable()->constrained('users');
             $table->string('image')->default('https://www.shutterstock.com/shutterstock/photos/1029506242/display_1500/stock-photo-blogging-blog-concepts-ideas-with-white-worktable-1029506242.jpg');
             $table->string('author')->default('Admin');
             $table->timestamps();
+        });
+
+        Schema::create('blog_likes', function (Blueprint $table) {
+            $table->id();
+            $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignUuid('blog_id')->constrained('blogs')->onDelete('cascade');
+            $table->timestamps();
+
+            $table->unique(['user_id', 'blog_id']);
+        });
+
+        Schema::create('blog_dislikes', function (Blueprint $table) {
+            $table->id();
+            $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignUuid('blog_id')->constrained('blogs')->onDelete('cascade');
+            $table->timestamps();
+
+            $table->unique(['user_id', 'blog_id']);
         });
     }
 
@@ -32,6 +48,8 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('blog_dislikes');
+        Schema::dropIfExists('blog_likes');
         Schema::dropIfExists('blogs');
     }
 };
