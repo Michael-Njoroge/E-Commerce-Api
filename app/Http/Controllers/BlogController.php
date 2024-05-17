@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\BlogResource;
+use App\Http\Resources\UserResource;
 use App\Models\Blog;
 use Illuminate\Http\Request;
 
@@ -12,25 +13,21 @@ class BlogController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-   {
-    // Eager load the likes relationship
-    $blogs = Blog::withCount('likedBy')->paginate(10);
-    
-    // Transform the collection of blogs into BlogResource
-    $blogsResource = BlogResource::collection($blogs);
-    
-    // Extract the data from the resource
-    $responseData = $blogsResource->response()->getData(true);
+    {
+        $blogs = Blog::with(['likedBy', 'dislikedBy'])->withCount('likedBy', 'dislikedBy')->paginate(10);
+        $blogsResource = BlogResource::collection($blogs);
+        $responseData = $blogsResource->response()->getData(true);
 
-    // Modify each blog item to include the count of likes
-    foreach ($responseData['data'] as &$blog) {
-        $blog['likes_count'] = $blog['liked_by_count'];
-        unset($blog['liked_by_count']);
+        foreach ($responseData['data'] as &$blog) {
+            $blog['likes'] = $blog['likes'];
+            $blog['dislikes'] = $blog['dislikes'];
+            $blog['liked_by'] = UserResource::collection(Blog::find($blog['id'])->likedBy);
+            $blog['disliked_by'] = UserResource::collection(Blog::find($blog['id'])->dislikedBy);
+        }
+
+        // Return the modified response
+        return $this->sendResponse($responseData, "Blogs retrieved successfully");
     }
-
-    // Return the modified response
-    return $this->sendResponse($responseData, "Blogs retrieved successfully");
-}
 
     /**
      * Store a newly created resource in storage.
@@ -57,6 +54,8 @@ class BlogController extends Controller
     public function show(Blog $blog)
     {
         if($blog){
+        $blog->loadCount('likedBy');
+        $blog->loadCount('dislikedBy');
          return $this->sendResponse(BlogResource::make($blog)
                 ->response()
                 ->getData(true), "Blog retrieved successfully" );
@@ -72,7 +71,8 @@ class BlogController extends Controller
         if($blog){
             $blog->update($request->all());
             $updatedBlog = Blog::findOrFail($blog->id);
-
+            $updatedBlog->loadCount('likedBy');
+            $updatedBlog->loadCount('dislikedBy');
             return $this->sendResponse(BlogResource::make($updatedBlog)
                 ->response()
                 ->getData(true), "Blog updated successfully" );
@@ -105,6 +105,8 @@ class BlogController extends Controller
                 $blog->dislikedBy()->detach($user->id);
                 $blog->is_disliked = false;
                 $blog->save();
+                $blog->loadCount('likedBy');
+                $blog->loadCount('dislikedBy');
 
                 return $this->sendResponse(BlogResource::make($blog)
                 ->response()
@@ -116,6 +118,8 @@ class BlogController extends Controller
                 $blog->likedBy()->detach($user->id);
                 $blog->is_liked = false;
                 $blog->save();
+                $blog->loadCount('likedBy');
+                $blog->loadCount('dislikedBy');
 
                 return $this->sendResponse(BlogResource::make($blog)
                 ->response()
@@ -126,6 +130,8 @@ class BlogController extends Controller
             $blog->likedBy()->attach($user->id);
             $blog->is_liked = true;
             $blog->save();
+            $blog->loadCount('likedBy');
+            $blog->loadCount('dislikedBy');
 
             return $this->sendResponse(BlogResource::make($blog)
                 ->response()
@@ -144,6 +150,8 @@ class BlogController extends Controller
                 $blog->likedBy()->detach($user->id);
                 $blog->is_liked = false;
                 $blog->save();
+                $blog->loadCount('likedBy');
+                $blog->loadCount('dislikedBy');
 
                 return $this->sendResponse(BlogResource::make($blog)
                 ->response()
@@ -155,6 +163,8 @@ class BlogController extends Controller
                 $blog->dislikedBy()->detach($user->id);
                 $blog->is_disliked = false;
                 $blog->save();
+                $blog->loadCount('likedBy');
+                $blog->loadCount('dislikedBy');
 
                 return $this->sendResponse(BlogResource::make($blog)
                 ->response()
@@ -165,6 +175,8 @@ class BlogController extends Controller
             $blog->dislikedBy()->attach($user->id);
             $blog->is_disliked = true;
             $blog->save();
+            $blog->loadCount('likedBy');
+            $blog->loadCount('dislikedBy');
 
             return $this->sendResponse(BlogResource::make($blog)
                 ->response()
