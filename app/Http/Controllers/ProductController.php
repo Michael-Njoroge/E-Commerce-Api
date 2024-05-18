@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\ProductResource;
+use App\Http\Resources\UserResource;
 use App\Models\Product;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -61,15 +62,6 @@ class ProductController extends Controller
         // Handle exceptions
         return response()->json(['error' => $e->getMessage()], 500);
         }
-    
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -139,10 +131,36 @@ class ProductController extends Controller
     {
         if($product) {
         $product->delete();
-        return $this->sendResponse('', 'Product deleted successfully');
+        return $this->sendResponse([], 'Product deleted successfully');
         }
         
         return $this->sendError('Product not found', 404);
 
+    }
+
+    //Add to whishlist
+    public function addToWishlist(Product $product)
+    {
+        $user = auth()->user();
+
+        if ($user->wishlist()->where('product_id', $product->id)->exists()) {
+            // Remove product from wishlist
+            $user->wishlist()->detach($product->id);
+
+            $user->load('wishlist');
+
+            return $this->sendResponse(UserResource::make($user)
+                    ->response()
+                    ->getData(true), "Product removed from wishlist successfully" );
+        } else {
+            // Add product to wishlist
+            $user->wishlist()->attach($product->id);
+
+            $user->load('wishlist');
+
+            return $this->sendResponse(UserResource::make($user)
+                    ->response()
+                    ->getData(true), "Product added to wishlist successfully" );
+        }
     }
 }

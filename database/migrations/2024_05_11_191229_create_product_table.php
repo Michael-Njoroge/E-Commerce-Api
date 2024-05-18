@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 return new class extends Migration
 {
@@ -28,7 +29,7 @@ return new class extends Migration
         });
 
         Schema::create('user_products', function (Blueprint $table) {
-            $table->id();
+             $table->uuid('id')->primary()->default(Str::uuid());
             $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignUuid('product_id')->constrained('products')->onDelete('cascade');
             $table->timestamps();

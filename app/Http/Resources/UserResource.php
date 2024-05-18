@@ -24,6 +24,7 @@ class UserResource extends JsonResource
             'role' => $this->role,
             'blocked' => (bool)$this->is_blocked,
             'cart' => $this->cart,
+            'wishlist' => $this->wishlist,
             'address' => $this->address,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

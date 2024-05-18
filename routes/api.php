@@ -53,6 +53,9 @@ Route::middleware(['auth:sanctum', 'active'])->group(function(){
     Route::put('/blogs/likes/{blog}',[BlogController::class,'likeBlog'])->name('blogs.like');
     Route::put('/blogs/dislikes/{blog}',[BlogController::class,'dislikeBlog'])->name('blogs.dislike');
 
+    //products
+    Route::put('/products/wishlist/{product}',[ProductController::class,'addToWishlist'])->name('products.wishlist');
+
 });
 
 /////////////////////////////// ROUTES THAT REQUIRE ACTIVATION, AUTHENTICATION AND ADMIN PERMISSIONS ///////////////////
