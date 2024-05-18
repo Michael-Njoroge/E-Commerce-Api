@@ -194,10 +194,11 @@ class ProductController extends Controller
             $message = "Rating added successfully";
         }
 
-        $totalRating = $product->ratings()->avg('star');
+        $totalRating = floor($product->ratings()->avg('star'));
+
         $product->update(['total_ratings' => $totalRating]);
         $product->load(['ratings.user']);
-        
+
         return response()->json([
             'success' => true,
             'data' => new ProductResource($product),

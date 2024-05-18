@@ -7,6 +7,7 @@ use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\BlogCategoryController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\CouponController;
 use Illuminate\Support\Facades\Route;
 
 /////////////////////////////// ROUTES THAT NEED NO AUTHENTICATION //////////////////////////////////////////////////////
@@ -29,6 +30,10 @@ Route::get('/brands/{brand}',[BrandController::class,'show'])->name('brand.show'
 //blogs
 Route::get('/blogs',[BlogController::class,'index'])->name('blogs.index');
 Route::get('/blogs/{blog}',[BlogController::class,'show'])->name('blogs.show');
+
+//coupons
+Route::get('/coupons',[CouponController::class,'index'])->name('coupons.index');
+Route::get('/coupons/{coupon}',[CouponController::class,'show'])->name('coupons.show');
 
 ////////////////////////////// AUTHENTICATION ROUTES ///////////////////////////////////////////////////////////////////
 Route::group(['prefix'=>'auth'], function(){
@@ -86,6 +91,11 @@ Route::middleware(['auth:sanctum', 'admin', 'active'])->group(function(){
     Route::post('/brands',[BrandController::class,'store'])->name('brands.store');
     Route::put('/brands/{brand}',[BrandController::class,'update'])->name('brands.update');
     Route::delete('/brands/{brand}',[BrandController::class,'destroy'])->name('brands.destroy');
+
+    //coupons
+    Route::post('/coupons',[CouponController::class,'store'])->name('coupons.store');
+    Route::put('/coupons/{coupon}',[CouponController::class,'update'])->name('coupons.update');
+    Route::delete('/coupons/{coupon}',[CouponController::class,'destroy'])->name('coupons.destroy');
 
     // users
     Route::get('/users',[UserController::class,'index'])->name('users.index');

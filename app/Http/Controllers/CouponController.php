@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CouponModel;
+use App\Models\Coupon;
+use App\Http\Resources\CouponResource;
 use Illuminate\Http\Request;
 
 class CouponController extends Controller
@@ -12,15 +13,11 @@ class CouponController extends Controller
      */
     public function index()
     {
-        //
-    }
+        $coupons = Coupon::paginate(20);
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return $this->sendResponse(CouponResource::collection($coupons)
+                ->response()
+                ->getData(true), "Coupons retrieved successfully" );
     }
 
     /**
@@ -28,7 +25,19 @@ class CouponController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'name' => 'required|string|unique:coupons,name',
+            'expiry' => 'required|date_format:Y-m-d',
+            'discount' => 'required|string'
+        ]);
+
+        $data['name'] = strtoupper($data['name']);
+
+        $coupon = Coupon::create($data);
+
+        return $this->sendResponse(CouponResource::make($coupon)
+                ->response()
+                ->getData(true), "Coupon created successfully" );
     }
 
     /**
@@ -36,15 +45,11 @@ class CouponController extends Controller
      */
     public function show(Coupon $coupon)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Coupon $coupon)
-    {
-        //
+        if($coupon){
+            return $this->sendResponse(CouponResource::make($coupon)
+                ->response()
+                ->getData(true), "Coupon retrieved successfully" );
+        }
     }
 
     /**
@@ -52,7 +57,14 @@ class CouponController extends Controller
      */
     public function update(Request $request, Coupon $coupon)
     {
-        //
+        if($coupon){
+            $coupon->update($request->all());
+            $updatedCoupon = Coupon::findOrFail($coupon->id);
+
+            return $this->sendResponse(CouponResource::make($updatedCoupon)
+                ->response()
+                ->getData(true), "Coupon updated successfully" );
+        }
     }
 
     /**
@@ -60,6 +72,10 @@ class CouponController extends Controller
      */
     public function destroy(Coupon $coupon)
     {
-        //
+        if($coupon){
+            $coupon->delete();
+
+            return $this->sendResponse([], "Coupon deleted successfully" );
+        }
     }
 }
