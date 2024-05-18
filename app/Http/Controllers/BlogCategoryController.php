@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BlogCategory;
 use Illuminate\Http\Request;
+use App\Http\Resources\BlogCategoryResource;
 
 class BlogCategoryController extends Controller
 {
@@ -12,15 +13,11 @@ class BlogCategoryController extends Controller
      */
     public function index()
     {
-        //
-    }
+        $categories = BlogCategory::paginate(20);
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return $this->sendResponse(BlogCategoryResource::collection($categories)
+                ->response()
+                ->getData(true), "Blog categories retrieved successfully" );
     }
 
     /**
@@ -28,7 +25,15 @@ class BlogCategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'title' => 'required|string|unique:blog_categories,title',
+        ]);
+
+        $category = BlogCategory::create($data);
+
+        return $this->sendResponse(BlogCategoryResource::make($category)
+                ->response()
+                ->getData(true), "Blog category created successfully" );
     }
 
     /**
@@ -36,15 +41,11 @@ class BlogCategoryController extends Controller
      */
     public function show(BlogCategory $blogCategory)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(BlogCategoryModel $blogCategory)
-    {
-        //
+        if($blogCategory){
+            return $this->sendResponse(BlogCategoryResource::make($blogCategory)
+                ->response()
+                ->getData(true), "Blog category retrieved successfully" );
+        }
     }
 
     /**
@@ -52,7 +53,14 @@ class BlogCategoryController extends Controller
      */
     public function update(Request $request, BlogCategory $blogCategory)
     {
-        //
+        if($blogCategory){
+            $blogCategory->update($request->all());
+            $updatedCategory = BlogCategory::findOrFail($blogCategory->id);
+
+            return $this->sendResponse(BlogCategoryResource::make($updatedCategory)
+                ->response()
+                ->getData(true), "Blog category updated successfully" );
+        }
     }
 
     /**
@@ -60,6 +68,10 @@ class BlogCategoryController extends Controller
      */
     public function destroy(BlogCategory $blogCategory)
     {
-        //
+        if($blogCategory){
+            $blogCategory->delete();
+
+            return $this->sendResponse([], "Blog category deleted successfully" );
+        }
     }
 }

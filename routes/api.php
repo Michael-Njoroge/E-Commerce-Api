@@ -4,12 +4,27 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\ProductCategoryController;
+use App\Http\Controllers\BlogCategoryController;
+use App\Http\Controllers\BrandController;
 use Illuminate\Support\Facades\Route;
 
 /////////////////////////////// ROUTES THAT NEED NO AUTHENTICATION //////////////////////////////////////////////////////
 //products
 Route::get('/products',[ProductController::class,'index'])->name('products.index');
 Route::get('/products/{product}',[ProductController::class,'show'])->name('products.show');
+
+//product categories
+Route::get('/product-category',[ProductCategoryController::class,'index'])->name('product-category.index');
+Route::get('/product-category/{productCategory}',[ProductCategoryController::class,'show'])->name('product-category.show');
+
+//blog categories
+Route::get('/blog-category',[BlogCategoryController::class,'index'])->name('blog-category.index');
+Route::get('/blog-category/{blogCategory}',[BlogCategoryController::class,'show'])->name('blog-category.show');
+
+//brand
+Route::get('/brands',[BrandController::class,'index'])->name('brand.index');
+Route::get('/brands/{brand}',[BrandController::class,'show'])->name('brand.show');
 
 //blogs
 Route::get('/blogs',[BlogController::class,'index'])->name('blogs.index');
@@ -48,10 +63,25 @@ Route::middleware(['auth:sanctum', 'admin', 'active'])->group(function(){
     Route::put('/products/{product}',[ProductController::class,'update'])->name('products.update');
     Route::delete('/products/{product}',[ProductController::class,'destroy'])->name('products.destroy');
 
+    //product categories
+    Route::post('/product-category',[ProductCategoryController::class,'store'])->name('product-category.store');
+    Route::put('/product-category/{productCategory}',[ProductCategoryController::class,'update'])->name('product-category.update');
+    Route::delete('/product-category/{productCategory}',[ProductCategoryController::class,'destroy'])->name('product-category.destroy');
+
+    //blog categories
+    Route::post('/blog-category',[BlogCategoryController::class,'store'])->name('blog-category.store');
+    Route::put('/blog-category/{blogCategory}',[BlogCategoryController::class,'update'])->name('blog-category.update');
+    Route::delete('/blog-category/{blogCategory}',[BlogCategoryController::class,'destroy'])->name('blog-category.destroy');
+
     //blogs
     Route::post('/blogs',[BlogController::class,'store'])->name('blogs.store');
     Route::put('/blogs/{blog}',[BlogController::class,'update'])->name('blogs.update');
     Route::delete('/blogs/{blog}',[BlogController::class,'destroy'])->name('blogs.destroy');
+
+    //brands
+    Route::post('/brands',[BrandController::class,'store'])->name('brands.store');
+    Route::put('/brands/{brand}',[BrandController::class,'update'])->name('brands.update');
+    Route::delete('/brands/{brand}',[BrandController::class,'destroy'])->name('brands.destroy');
 
     // users
     Route::get('/users',[UserController::class,'index'])->name('users.index');

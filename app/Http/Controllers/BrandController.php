@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Brand;
+use App\Http\Resources\BrandResource;
 use Illuminate\Http\Request;
 
 class BrandController extends Controller
@@ -12,15 +13,11 @@ class BrandController extends Controller
      */
     public function index()
     {
-        //
-    }
+        $brands = Brand::paginate(20);
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return $this->sendResponse(BrandResource::collection($brands)
+                ->response()
+                ->getData(true), "Brands retrieved successfully" );
     }
 
     /**
@@ -28,7 +25,15 @@ class BrandController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'title' => 'required|string|unique:brands,title',
+        ]);
+
+        $brand = Brand::create($data);
+
+        return $this->sendResponse(BrandResource::make($brand)
+                ->response()
+                ->getData(true), "Brand created successfully" );
     }
 
     /**
@@ -36,15 +41,11 @@ class BrandController extends Controller
      */
     public function show(Brand $brand)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Brand $brand)
-    {
-        //
+        if($brand){
+            return $this->sendResponse(BrandResource::make($brand)
+                ->response()
+                ->getData(true), "Brand retrieved successfully" );
+        }
     }
 
     /**
@@ -52,7 +53,14 @@ class BrandController extends Controller
      */
     public function update(Request $request, Brand $brand)
     {
-        //
+        if($brand){
+            $brand->update($request->all());
+            $updatedBrand = Brand::findOrFail($brand->id);
+
+            return $this->sendResponse(BrandResource::make($updatedBrand)
+                ->response()
+                ->getData(true), "Brand updated successfully" );
+        }
     }
 
     /**
@@ -60,6 +68,11 @@ class BrandController extends Controller
      */
     public function destroy(Brand $brand)
     {
-        //
+        if($brand){
+            $brand->delete();
+
+            return $this->sendResponse([], "Brand deleted successfully" );
+        }
     }
 }
+

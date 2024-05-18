@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ProductCategory;
 use Illuminate\Http\Request;
+use App\Http\Resources\ProductCategoryResource;
 
 class ProductCategoryController extends Controller
 {
@@ -12,15 +13,11 @@ class ProductCategoryController extends Controller
      */
     public function index()
     {
-        //
-    }
+        $categories = ProductCategory::paginate(20);
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return $this->sendResponse(ProductCategoryResource::collection($categories)
+                ->response()
+                ->getData(true), "Product categories retrieved successfully" );
     }
 
     /**
@@ -28,7 +25,15 @@ class ProductCategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'title' => 'required|string|unique:product_categories,title',
+        ]);
+
+        $category = ProductCategory::create($data);
+
+        return $this->sendResponse(ProductCategoryResource::make($category)
+                ->response()
+                ->getData(true), "Product category created successfully" );
     }
 
     /**
@@ -36,15 +41,11 @@ class ProductCategoryController extends Controller
      */
     public function show(ProductCategory $productCategory)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(ProductCategory $productCategory)
-    {
-        //
+        if($productCategory){
+            return $this->sendResponse(ProductCategoryResource::make($productCategory)
+                ->response()
+                ->getData(true), "Product category retrieved successfully" );
+        }
     }
 
     /**
@@ -52,7 +53,14 @@ class ProductCategoryController extends Controller
      */
     public function update(Request $request, ProductCategory $productCategory)
     {
-        //
+        if($productCategory){
+            $productCategory->update($request->all());
+            $updatedCategory = ProductCategory::findOrFail($productCategory->id);
+
+            return $this->sendResponse(ProductCategoryResource::make($updatedCategory)
+                ->response()
+                ->getData(true), "Product category updated successfully" );
+        }
     }
 
     /**
@@ -60,6 +68,10 @@ class ProductCategoryController extends Controller
      */
     public function destroy(ProductCategory $productCategory)
     {
-        //
+        if($productCategory){
+            $productCategory->delete();
+
+            return $this->sendResponse([], "Product category deleted successfully" );
+        }
     }
 }
