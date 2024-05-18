@@ -78,4 +78,9 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Blog::class,"dislikes");
     }
+
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class);
+    }
 }

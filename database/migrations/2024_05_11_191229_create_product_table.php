@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('brand');
             $table->integer('quantity');
             $table->integer('sold')->default(0);
+            $table->decimal('total_ratings', 8, 2)->default(0);
             $table->json('images')->nullable();
             $table->json('color')->nullable();
             $table->json('tags')->nullable();
@@ -36,6 +37,15 @@ return new class extends Migration
 
             $table->unique(['user_id', 'product_id']);
         });
+
+        Schema::create('ratings', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->foreignUuid('product_id')->constrained('products')->onDelete('cascade');
+            $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
+            $table->integer('star')->nullable(false);
+            $table->text('comment')->nullable();
+            $table->timestamps();
+        });
     }
 
     /**
@@ -45,5 +55,6 @@ return new class extends Migration
     {
         Schema::dropIfExists('products');
         Schema::dropIfExists('user_products');
+        Schema::dropIfExists('ratings');
     }
 };

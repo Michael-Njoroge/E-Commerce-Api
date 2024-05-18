@@ -27,6 +27,8 @@ class ProductResource extends JsonResource
             'images' => $this->images ?? [],
             'color' => $this->color ?? [],
             'tag' => $this->tag ?? [],
+            'total_ratings' => $this->total_ratings,
+            'ratings' => RatingResource::collection($this->whenLoaded('ratings')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

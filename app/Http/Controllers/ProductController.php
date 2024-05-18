@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\UserResource;
+use App\Http\Resources\RatingResource;
 use App\Models\Product;
+use App\Models\Rating;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 
@@ -162,5 +164,44 @@ class ProductController extends Controller
                     ->response()
                     ->getData(true), "Product added to wishlist successfully" );
         }
+    }
+
+    //Rate Product
+  public function rateProduct(Request $request, Product $product)
+    {
+        $request->validate([
+            'star' => 'required|integer|min:1|max:5',
+            'comment' => 'nullable|string',
+        ]);
+
+        $user = auth()->user();
+
+        $existingRating = $product->ratings()->where('user_id', $user->id)->first();
+
+        if ($existingRating) {
+            $existingRating->update([
+                'star' => $request->star,
+                'comment' => $request->comment,
+            ]);
+            $message = "Rating updated successfully";
+        } else {
+            Rating::create([
+                'product_id' => $product->id,
+                'user_id' => $user->id,
+                'star' => $request->star,
+                'comment' => $request->comment,
+            ]);
+            $message = "Rating added successfully";
+        }
+
+        $totalRating = $product->ratings()->avg('star');
+        $product->update(['total_ratings' => $totalRating]);
+        $product->load(['ratings.user']);
+        
+        return response()->json([
+            'success' => true,
+            'data' => new ProductResource($product),
+            'message' => $message,
+        ]);
     }
 }

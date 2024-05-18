@@ -54,7 +54,8 @@ Route::middleware(['auth:sanctum', 'active'])->group(function(){
     Route::put('/blogs/dislikes/{blog}',[BlogController::class,'dislikeBlog'])->name('blogs.dislike');
 
     //products
-    Route::put('/products/wishlist/{product}',[ProductController::class,'addToWishlist'])->name('products.wishlist');
+    Route::put('/products/{product}/wishlist',[ProductController::class,'addToWishlist'])->name('products.wishlist');
+    Route::put('/products/{product}/rate',[ProductController::class,'rateProduct'])->name('products.rate');
 
 });
 
