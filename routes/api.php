@@ -53,7 +53,8 @@ Route::middleware(['auth:sanctum', 'active'])->group(function(){
     Route::put('/users/change-password/{user}',[AuthController::class,'updatePassword'])->name('users.changePassword');
     Route::post('/users/forgot-password/{user}',[AuthController::class,'forgotPassword'])->name('users.forgotPassword');
     Route::post('/users/reset-password',[AuthController::class,'resetPassword'])->name('users.resetPassword');
-    Route::get('/logout',[AuthController::class,'logout'])->name('user.logout');
+    Route::post('/users/reset-password',[AuthController::class,'resetPassword'])->name('users.resetPassword');
+    Route::put('/users/save-address/{user}',[UserController::class,'saveAddress'])->name('save-address');
 
     //blogs
     Route::put('/blogs/likes/{blog}',[BlogController::class,'likeBlog'])->name('blogs.like');
@@ -62,6 +63,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function(){
     //products
     Route::put('/products/{product}/wishlist',[ProductController::class,'addToWishlist'])->name('products.wishlist');
     Route::put('/products/{product}/rate',[ProductController::class,'rateProduct'])->name('products.rate');
+    Route::post('/products/{product}/cart',[UserController::class,'addToCart'])->name('products.cart');
 
     Route::post('/products-blogs/upload',[MediaController::class,'upload'])->name('products.upload');
 

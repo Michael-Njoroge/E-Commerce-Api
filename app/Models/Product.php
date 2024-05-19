@@ -26,4 +26,18 @@ class Product extends Model
     {
         return $this->morphMany(Media::class, 'medially');
     }
+
+    public function carts()
+    {
+        return $this->belongsToMany(Cart::class, 'cart_product')
+                    ->withPivot('count', 'color', 'price')
+                    ->withTimestamps();
+    }
+
+    public function orders()
+    {
+        return $this->belongsToMany(Order::class, 'order_products')
+                    ->withPivot('count', 'color', 'price')
+                    ->withTimestamps();
+    }
 }

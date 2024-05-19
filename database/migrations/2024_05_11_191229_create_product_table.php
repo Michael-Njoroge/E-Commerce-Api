@@ -45,6 +45,16 @@ return new class extends Migration
             $table->text('comment')->nullable();
             $table->timestamps();
         });
+
+        Schema::create('order_products', function (Blueprint $table) {
+            $table->uuid('id')->primary()->default(Str::uuid());
+            $table->foreignUuid('product_id')->constrained('products')->onDelete('cascade');
+            $table->foreignUuid('order_id')->constrained('orders')->onDelete('cascade');
+            $table->integer('count');
+            $table->string('color');
+            $table->decimal('price', 8, 2);
+            $table->timestamps();
+        });
     }
 
     /**

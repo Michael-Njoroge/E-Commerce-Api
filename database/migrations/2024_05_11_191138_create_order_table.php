@@ -11,8 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('order_models', function (Blueprint $table) {
-            $table->id();
+        Schema::create('orders', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->foreignUuid('user_id')->constrained('users');
+            $table->json('payment_intent')->nullable();
+            $table->enum('order_status', [
+                'Not Processed',
+                'Cash on Delivery',
+                'Processing',
+                'Dispatched',
+                'Cancelled',
+                'Delivered'
+            ])->default('Not Processed');
             $table->timestamps();
         });
     }
@@ -22,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('order_models');
+        Schema::dropIfExists('orders');
     }
 };
