@@ -23,7 +23,7 @@ class BlogResource extends JsonResource
             'is_disliked' => (bool)$this->is_disliked,
             'likes' => $this->liked_by_count,
             'dislikes' => $this->disliked_by_count,
-            'image' => $this->image,
+            'images' => MediaResource::collection($this->whenLoaded('media')),
             'author' => $this->author,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

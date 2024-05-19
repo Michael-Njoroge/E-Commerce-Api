@@ -24,7 +24,7 @@ class ProductResource extends JsonResource
             'brand' => $this->brand,
             'quantity' => $this->quantity,
             'sold' => $this->sold ?? 0,
-            'images' => $this->images ?? [],
+            'images' => MediaResource::collection($this->whenLoaded('media')),
             'color' => $this->color ?? [],
             'tag' => $this->tag ?? [],
             'total_ratings' => $this->total_ratings,

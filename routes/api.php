@@ -63,7 +63,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function(){
     Route::put('/products/{product}/wishlist',[ProductController::class,'addToWishlist'])->name('products.wishlist');
     Route::put('/products/{product}/rate',[ProductController::class,'rateProduct'])->name('products.rate');
 
-    Route::post('/products/upload',[MediaController::class,'upload'])->name('products.upload');
+    Route::post('/products-blogs/upload',[MediaController::class,'upload'])->name('products.upload');
 
 });
 

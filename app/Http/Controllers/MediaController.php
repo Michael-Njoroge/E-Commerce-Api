@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Resources\ProductResource;
+use App\Http\Resources\BlogResource;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use App\Models\Media;
 use App\Models\Product;
@@ -35,10 +37,13 @@ class MediaController extends Controller
         $thumbImage->resize(300, 300);
 
         $thumbImage->save($tempPath);
+
+        $modelType = $request->input('model_type');
+        $folder = $modelType === 'product' ? 'products' : 'blogs';
         
         // Upload to Cloudinary
         $uploadedFileUrl = Cloudinary::upload($tempPath, [
-            'folder' => 'products',
+            'folder' => $folder,
             'public_id' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
         ])->getSecurePath();
 
@@ -52,23 +57,32 @@ class MediaController extends Controller
         $media->file_type = $file_type;
         $media->size = $file_size;
 
-        $modelType = $request->input('model_type');
+        // $modelType = $request->input('model_type');
         $modelId = $request->input('model_id');
 
         if ($modelType === 'product') {
             $product = Product::findOrFail($modelId);
             $product->media()->save($media);
+            $product->load('media');
+            
+             return $this->sendResponse(ProductResource::make($product)
+                ->response()
+                ->getData(true), 'Product image uploaded successfully');
+
         } elseif ($modelType === 'blog') {
             $blog = Blog::findOrFail($modelId);
             $blog->media()->save($media);
-        } else {
-            return response()->json(['success' => false, 'message' => 'Invalid model type'], 400);
-        }
+            $blog->load('media');
+            $blog->loadCount('likedBy');
+            $blog->loadCount('dislikedBy');
+            $message = 'Blog image uploaded successfully';
 
-        return response()->json([
-            'success' => true,
-            'data' => $media,
-            'message' => $modelType === 'product' ? 'Product image uploaded successfully' : 'Blog image uploaded successfully',
-        ]);
+            return $this->sendResponse(BlogResource::make($blog)
+                ->response()
+                ->getData(true), 'Blog image uploaded successfully');
+
+        } else {
+            return $this->sendError($error = 'Invalid model type');
+        }
     }
 }
