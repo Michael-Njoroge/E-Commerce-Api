@@ -21,4 +21,9 @@ class Blog extends Model
     {
         return $this->belongsToMany(User::class, "blog_dislikes");
     }
+
+    public function media()
+    {
+        return $this->morphMany(Media::class, 'medially');
+    }
 }

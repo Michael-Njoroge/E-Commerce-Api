@@ -27,4 +27,9 @@ class Product extends Model
     {
         return $this->hasMany(Rating::class);
     }
+
+    public function media()
+    {
+        return $this->morphMany(Media::class, 'medially');
+    }
 }

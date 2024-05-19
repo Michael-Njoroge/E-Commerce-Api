@@ -30,10 +30,13 @@ return [
 
     'disks' => [
 
-        'local' => [
-            'driver' => 'local',
-            'root' => storage_path('app'),
-            'throw' => false,
+        // 'local' => [
+        //     'driver' => 'local',
+        //     'root' => storage_path('app'),
+        //     'throw' => false,
+        // ],
+        'cloudinary' => [
+        'driver' => 'cloudinary',
         ],
 
         'public' => [

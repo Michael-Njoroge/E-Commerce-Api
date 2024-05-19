@@ -8,6 +8,7 @@ use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\BlogCategoryController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CouponController;
+use App\Http\Controllers\MediaController;
 use Illuminate\Support\Facades\Route;
 
 /////////////////////////////// ROUTES THAT NEED NO AUTHENTICATION //////////////////////////////////////////////////////
@@ -61,6 +62,8 @@ Route::middleware(['auth:sanctum', 'active'])->group(function(){
     //products
     Route::put('/products/{product}/wishlist',[ProductController::class,'addToWishlist'])->name('products.wishlist');
     Route::put('/products/{product}/rate',[ProductController::class,'rateProduct'])->name('products.rate');
+
+    Route::post('/products/upload',[MediaController::class,'upload'])->name('products.upload');
 
 });
 
