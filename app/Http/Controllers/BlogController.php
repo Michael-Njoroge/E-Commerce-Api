@@ -42,6 +42,8 @@ class BlogController extends Controller
 
         $blog = Blog::create($data);
         $createdBlog = Blog::findOrFail($blog->id);
+        $createdBlog->loadCount('likedBy');
+        $createdBlog->loadCount('dislikedBy');
 
         return $this->sendResponse(BlogResource::make($createdBlog)
                 ->response()
