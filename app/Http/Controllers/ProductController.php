@@ -38,6 +38,7 @@ class ProductController extends Controller
         $page = $request->query('page');
         $limit = $request->query('limit', 10);
         $products = $query->paginate($limit);
+        $products = $query->with(['media', 'ratings.user'])->paginate($limit);
 
         // Remove fields from the request query parameters
         $excludeFields = ['page', 'sort', 'limit'];
@@ -54,6 +55,7 @@ class ProductController extends Controller
 
             // Add conditions to the query
             $query->where($key, $value);
+
         }
 
         return $this->sendResponse(ProductResource::collection($products)
@@ -90,6 +92,7 @@ class ProductController extends Controller
         }
 
         $productSaved = Product::create($data);
+        $productSaved->load(['media', 'ratings.user']);
 
         return $this->sendResponse(ProductResource::make($productSaved)
                     ->response()
@@ -102,6 +105,7 @@ class ProductController extends Controller
     public function show(Product $product)
     {
         if($product){
+            $product->load(['media', 'ratings.user']);
             return $this->sendResponse(ProductResource::make($product)
                     ->response()
                     ->getData(true), "Product retrieved successfully" );
@@ -119,6 +123,7 @@ class ProductController extends Controller
         if($product){
         $product->update($request->all());
         $updatedProduct = Product::findOrFail($product->id);
+        $updatedProduct->load(['media', 'ratings.user']);
 
         return $this->sendResponse(ProductResource::make($updatedProduct)->response()->getData(true), "Product updated successfully");
         }
@@ -158,7 +163,7 @@ class ProductController extends Controller
             // Add product to wishlist
             $user->wishlist()->attach($product->id);
 
-            $user->load('wishlist');
+            $user->load(['wishlist','wishlist.media','ratings']);
 
             return $this->sendResponse(UserResource::make($user)
                     ->response()
@@ -166,7 +171,7 @@ class ProductController extends Controller
         }
     }
 
-    //Rate Product
+  //Rate Product
   public function rateProduct(Request $request, Product $product)
     {
         $request->validate([
@@ -195,14 +200,13 @@ class ProductController extends Controller
         }
 
         $totalRating = floor($product->ratings()->avg('star'));
+        // dd($product->load(['wishlist.media','ratings']));
 
         $product->update(['total_ratings' => $totalRating]);
-        $product->load(['ratings.user']);
+        $product->load(['media','ratings.user']);
 
-        return response()->json([
-            'success' => true,
-            'data' => new ProductResource($product),
-            'message' => $message,
-        ]);
+        return $this->sendResponse(ProductResource::make($product)
+                    ->response()
+                    ->getData(true), $message );
     }
 }

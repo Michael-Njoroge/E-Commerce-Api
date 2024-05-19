@@ -14,7 +14,7 @@ class BlogController extends Controller
      */
     public function index()
     {
-        $blogs = Blog::with(['likedBy', 'dislikedBy'])->withCount('likedBy', 'dislikedBy')->paginate(10);
+        $blogs = Blog::with(['likedBy', 'dislikedBy', 'media'])->withCount('likedBy', 'dislikedBy')->paginate(10);
         $blogsResource = BlogResource::collection($blogs);
         $responseData = $blogsResource->response()->getData(true);
 
@@ -44,6 +44,7 @@ class BlogController extends Controller
         $createdBlog = Blog::findOrFail($blog->id);
         $createdBlog->loadCount('likedBy');
         $createdBlog->loadCount('dislikedBy');
+        $createdBlog->load('media');
 
         return $this->sendResponse(BlogResource::make($createdBlog)
                 ->response()
@@ -58,7 +59,9 @@ class BlogController extends Controller
         if($blog){
         $blog->loadCount('likedBy');
         $blog->loadCount('dislikedBy');
-         return $this->sendResponse(BlogResource::make($blog)
+        $blog->load('media');
+
+        return $this->sendResponse(BlogResource::make($blog)
                 ->response()
                 ->getData(true), "Blog retrieved successfully" );
         }
@@ -75,6 +78,8 @@ class BlogController extends Controller
             $updatedBlog = Blog::findOrFail($blog->id);
             $updatedBlog->loadCount('likedBy');
             $updatedBlog->loadCount('dislikedBy');
+            $updatedBlog->load('media');
+
             return $this->sendResponse(BlogResource::make($updatedBlog)
                 ->response()
                 ->getData(true), "Blog updated successfully" );
@@ -109,6 +114,7 @@ class BlogController extends Controller
                 $blog->save();
                 $blog->loadCount('likedBy');
                 $blog->loadCount('dislikedBy');
+                $blog->load('media');
 
                 return $this->sendResponse(BlogResource::make($blog)
                 ->response()
@@ -122,7 +128,8 @@ class BlogController extends Controller
                 $blog->save();
                 $blog->loadCount('likedBy');
                 $blog->loadCount('dislikedBy');
-
+                $blog->load('media');
+                
                 return $this->sendResponse(BlogResource::make($blog)
                 ->response()
                 ->getData(true), "Blog like removed successfully" );
@@ -134,6 +141,7 @@ class BlogController extends Controller
             $blog->save();
             $blog->loadCount('likedBy');
             $blog->loadCount('dislikedBy');
+            $blog->load('media');
 
             return $this->sendResponse(BlogResource::make($blog)
                 ->response()
@@ -154,6 +162,7 @@ class BlogController extends Controller
                 $blog->save();
                 $blog->loadCount('likedBy');
                 $blog->loadCount('dislikedBy');
+                $blog->load('media');
 
                 return $this->sendResponse(BlogResource::make($blog)
                 ->response()
@@ -167,6 +176,7 @@ class BlogController extends Controller
                 $blog->save();
                 $blog->loadCount('likedBy');
                 $blog->loadCount('dislikedBy');
+                $blog->load('media');
 
                 return $this->sendResponse(BlogResource::make($blog)
                 ->response()
@@ -179,6 +189,7 @@ class BlogController extends Controller
             $blog->save();
             $blog->loadCount('likedBy');
             $blog->loadCount('dislikedBy');
+            $blog->load('media');
 
             return $this->sendResponse(BlogResource::make($blog)
                 ->response()

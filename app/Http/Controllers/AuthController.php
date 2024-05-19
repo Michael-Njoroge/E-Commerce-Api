@@ -230,6 +230,7 @@ class AuthController extends Controller
                 $user->password = Hash::make($data['password']);
                 $user->password_reset_token = null;
                 $user->password_reset_expires = null;
+                $user->password_changed_at = now();
                 $user->save();
 
                 return $this->sendResponse(UserResource::make($user)

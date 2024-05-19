@@ -19,7 +19,6 @@ return new class extends Migration
             $table->integer('num_views')->default(0);
             $table->boolean('is_liked')->default(false);
             $table->boolean('is_disliked')->default(false);
-            $table->string('image')->default('https://www.shutterstock.com/shutterstock/photos/1029506242/display_1500/stock-photo-blogging-blog-concepts-ideas-with-white-worktable-1029506242.jpg');
             $table->string('author')->default('Admin');
             $table->timestamps();
         });

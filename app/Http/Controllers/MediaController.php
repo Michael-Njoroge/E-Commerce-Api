@@ -59,7 +59,7 @@ class MediaController extends Controller
             $media->file_name = $file_name;
             $media->file_type = $file_type;
             $media->size = $file_size;
-             $media->medially_id = $modelId;
+            $media->medially_id = $modelId;
             $media->medially_type = $modelType === 'product' ? Product::class : Blog::class;
             $media->save();
 
