@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Cart;
 use App\Models\Product;
+use App\Models\Order;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\CartResource;
 use App\Http\Resources\CartProductResource;
@@ -166,8 +167,69 @@ class UserController extends Controller
         $cart->products()->attach($products);
         $cart->load(['user','products']);
 
-         return $this->sendResponse(CartResource::make($cart)
+        return $this->sendResponse(CartResource::make($cart)
                 ->response()
                 ->getData(true), "Product added to cart successfully" );
     }
+
+    //Get user cart
+    public function getUserCart()
+    {
+        $user = auth()->user();
+        $cart = Cart::with('products')->where('user_id', $user->id)->first();
+
+       return $this->sendResponse(CartResource::make($cart)
+                ->response()
+                ->getData(true), "User cart retrieved successfully" );
+    }
+
+    //Create order
+    public function createOrder(Request $request)
+    {
+        $request->validate([
+            'COD' => 'required|boolean'
+        ]);
+
+        if (!$request->COD) {
+            return $this->sendError($error = 'Create cash order failed');
+        }
+
+        $user = auth()->user();
+        $cart = Cart::with('products')->where('user_id', $user->id)->first();
+        $finalAmount = $cart->cart_total;
+
+        $order = Order::create([
+            'user_id' => $user->id,
+            'payment_intent' => json_encode([
+                'id' => uniqid(),
+                'method' => 'COD',
+                'amount' => $finalAmount,
+                'status' => 'Cash on Delivery',
+                'created' => now(),
+                'currency' => 'usd'
+            ]),
+            'order_status' => 'Cash on Delivery'
+        ]);
+
+        $order->products()->attach($cart->products->pluck('id')->toArray());
+
+        foreach ($cart->products as $product) {
+            $product->decrement('quantity', $product->pivot->count);
+            $product->increment('sold', $product->pivot->count);
+        }
+
+        $cart->delete();
+
+        return response()->json($order, 201);
+    }
+
+    //Get orders
+    public function getOrders()
+    {
+        $user = auth()->user();
+        $orders = Order::with('products')->where('user_id', $user->id)->get();
+
+        return response()->json($orders);
+    }
+
 }
