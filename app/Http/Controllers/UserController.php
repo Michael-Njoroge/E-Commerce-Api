@@ -176,12 +176,30 @@ class UserController extends Controller
     public function getUserCart()
     {
         $user = auth()->user();
-        $cart = Cart::with('products')->where('user_id', $user->id)->first();
+        $cart = Cart::with('products','products.media')->where('user_id', $user->id)->first();
 
-       return $this->sendResponse(CartResource::make($cart)
+        if ($cart) {
+        return $this->sendResponse(
+            CartResource::make($cart)
                 ->response()
-                ->getData(true), "User cart retrieved successfully" );
+                ->getData(true),
+            "User cart retrieved successfully"
+        );
+        } else {
+            return $this->sendError("User cart is empty");
+        }
     }
+
+    //Empty user cart
+    public function emptyUserCart()
+    {
+        $id = auth()->id();
+        $user = User::where('id', $id)->first();
+        Cart::where('user_id', $user->id)->delete();
+
+       return $this->sendResponse([], "User cart emptied successfully" );
+    }
+
 
     //Create order
     public function createOrder(Request $request)

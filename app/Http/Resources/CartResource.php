@@ -17,9 +17,9 @@ class CartResource extends JsonResource
         return [
             'id' => $this->id,
             'products' => CartProductResource::collection($this->whenLoaded('products')),
-            'orderedBy' => new UserResource($this->whenLoaded('user')),
+            // 'orderedBy' => new UserResource($this->whenLoaded('user')),
             'cartTotal' => $this->cart_total,
-             'created_at' => $this->created_at,
+            'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
     }

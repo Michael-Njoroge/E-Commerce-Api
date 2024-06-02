@@ -65,6 +65,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function(){
     Route::put('/products/{product}/rate',[ProductController::class,'rateProduct'])->name('products.rate');
     Route::post('/products/{product}/cart',[UserController::class,'addToCart'])->name('products.cart');
     Route::get('/user-cart',[UserController::class,'getUserCart'])->name('user.cart');
+    Route::delete('/empty-user-cart',[UserController::class,'emptyUserCart'])->name('empty.user.cart');
 
     Route::post('/products-blogs/upload',[MediaController::class,'upload'])->name('products.upload');
     Route::post('/products/store/orders',[UserController::class,'createOrder'])->name('products.order');
