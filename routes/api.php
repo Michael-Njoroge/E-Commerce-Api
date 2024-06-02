@@ -67,6 +67,10 @@ Route::middleware(['auth:sanctum', 'active'])->group(function(){
     Route::get('/user-cart',[UserController::class,'getUserCart'])->name('user.cart');
     Route::delete('/empty-user-cart',[UserController::class,'emptyUserCart'])->name('empty.user.cart');
 
+    //coupons
+    Route::post('/cart/apply-coupon',[UserController::class,'applyCoupon'])->name('apply.coupon');
+
+
     Route::post('/products-blogs/upload',[MediaController::class,'upload'])->name('products.upload');
     Route::post('/products/store/orders',[UserController::class,'createOrder'])->name('products.order');
     Route::get('/orders',[UserController::class,'getOrders'])->name('get.orders');

@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Cart;
 use App\Models\Product;
 use App\Models\Order;
+use App\Models\Coupon;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\CartResource;
 use App\Http\Resources\CartProductResource;
@@ -200,6 +201,35 @@ class UserController extends Controller
        return $this->sendResponse([], "User cart emptied successfully" );
     }
 
+    //Apply coupon
+    public function applyCoupon(Request $request)
+    {
+        $id = auth()->id();
+        $data = $request->validate([
+            'coupon' => 'required|string|exists:coupons,name'
+        ]);
+        try {
+            $coupon = Coupon::where('name', $data['coupon'])->firstOrFail();
+
+            $user = User::where('id', $id)->first();
+            $cart = Cart::where('user_id', $user->id)->firstOrFail();
+            $cartTotal = $cart->cart_total;
+
+            $totalAfterDiscount = $cartTotal - ($cartTotal * $coupon->discount / 100);
+            // dd($totalAfterDiscount);
+            $cart->update(['cart_total' => $totalAfterDiscount]);
+
+            $updatedCart = Cart::where('user_id', $user->id)->first();
+            $updatedCart->load('products');
+
+            return $this->sendResponse(CartResource::make($updatedCart)
+                ->response()
+                ->getData(true), "Coupon applied successfully" );
+        }
+        catch (\Exception $e) {
+            return $this->sendError($error, 'Invalid Coupon');
+        }
+    }
 
     //Create order
     public function createOrder(Request $request)
