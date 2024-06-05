@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Color;
+use App\Http\Resources\ColorResource;
 use Illuminate\Http\Request;
 
 class ColorController extends Controller
@@ -12,15 +13,11 @@ class ColorController extends Controller
      */
     public function index()
     {
-        //
-    }
+        $colors = Color::paginate(20);
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return $this->sendResponse(ColorResource::collection($colors)
+                ->response()
+                ->getData(true), "Colors retrieved successfully" );
     }
 
     /**
@@ -28,7 +25,15 @@ class ColorController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'title' => 'required|string|unique:colors,title',
+        ]);
+
+        $color = Color::create($data);
+
+        return $this->sendResponse(ColorResource::make($color)
+                ->response()
+                ->getData(true), "Color created successfully" );
     }
 
     /**
@@ -36,15 +41,11 @@ class ColorController extends Controller
      */
     public function show(Color $color)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Color $color)
-    {
-        //
+        if($color){
+            return $this->sendResponse(ColorResource::make($color)
+                ->response()
+                ->getData(true), "Color retrieved successfully" );
+        }
     }
 
     /**
@@ -52,7 +53,14 @@ class ColorController extends Controller
      */
     public function update(Request $request, Color $color)
     {
-        //
+        if($color){
+            $color->update($request->all());
+            $updatedColor = Color::findOrFail($color->id);
+
+            return $this->sendResponse(ColorResource::make($updatedColor)
+                ->response()
+                ->getData(true), "Color updated successfully" );
+        }
     }
 
     /**
@@ -60,6 +68,11 @@ class ColorController extends Controller
      */
     public function destroy(Color $color)
     {
-        //
+        if($color){
+            $color->delete();
+
+            return $this->sendResponse([], "Color deleted successfully" );
+        }
     }
 }
+

@@ -12,6 +12,8 @@ class CreateMediaTable extends Migration
             $table->uuid('id')->primary();
             $table->uuidMorphs('medially');
             $table->text('file_url');
+            $table->text('asset_id');
+            $table->text('public_id');
             $table->string('file_name');
             $table->string('file_type')->nullable();
             $table->unsignedBigInteger('size');

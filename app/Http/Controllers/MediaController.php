@@ -43,17 +43,22 @@ class MediaController extends Controller
             $thumbImage->resize(300, 300);
 
             $thumbImage->save($tempPath);
-            
+
+            $uniqueId = uniqid();
+            $publicId = $folder . '/' . $uniqueId . '_' . pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
             // Upload to Cloudinary
-            $uploadedFileUrl = Cloudinary::upload($tempPath, [
-                'folder' => $folder,
-                'public_id' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
-            ])->getSecurePath();
+            $uploadedFile = Cloudinary::upload($tempPath, [
+            'folder' => $folder,
+            'public_id' => $publicId,
+            ]);
+
+            // Get the full response
+            $uploadedFileUrl = $uploadedFile->getSecurePath();
+            $assetId = $uploadedFile->getAssetId();
 
             // Delete the temporary file
             Storage::delete('public/temp/' . $file_extension);
 
-            // Save the file info to the media table
             $media = new Media();
             $media->file_url = $uploadedFileUrl;
             $media->file_name = $file_name;
@@ -61,6 +66,8 @@ class MediaController extends Controller
             $media->size = $file_size;
             $media->medially_id = $modelId;
             $media->medially_type = $modelType === 'product' ? Product::class : Blog::class;
+            $media->asset_id = $assetId;
+            $media->public_id = $publicId;
             $media->save();
 
             $mediaEntries[] = $media;
@@ -88,6 +95,30 @@ class MediaController extends Controller
 
         } else {
             return $this->sendError($error = 'Invalid model type');
+        }
+    }
+
+    public function deleteFromCloudinary(Request $request)
+    {
+        $request->validate([
+            'public_ids' => 'required|array|exists:media,public_id',
+        ]);
+
+        $publicIds = $request->input('public_ids');
+
+        try {
+            foreach ($publicIds as $publicId) {
+                Cloudinary::destroy($publicId);
+
+                $media = Media::where('public_id', $publicId)->first();
+                if ($media) {
+                    $media->delete();
+                }
+            }
+
+            return $this->sendResponse([], 'Images deleted successfully');
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to delete images'], 500);
         }
     }
 }

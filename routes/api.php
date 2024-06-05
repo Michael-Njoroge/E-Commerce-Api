@@ -7,6 +7,7 @@ use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\BlogCategoryController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\ColorController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\MediaController;
 use Illuminate\Support\Facades\Route;
@@ -27,6 +28,10 @@ Route::get('/blog-category/{blogCategory}',[BlogCategoryController::class,'show'
 //brand
 Route::get('/brands',[BrandController::class,'index'])->name('brand.index');
 Route::get('/brands/{brand}',[BrandController::class,'show'])->name('brand.show');
+
+//color
+Route::get('/colors',[ColorController::class,'index'])->name('color.index');
+Route::get('/colors/{color}',[ColorController::class,'show'])->name('color.show');
 
 //blogs
 Route::get('/blogs',[BlogController::class,'index'])->name('blogs.index');
@@ -72,6 +77,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function(){
 
 
     Route::post('/products-blogs/upload',[MediaController::class,'upload'])->name('products.upload');
+    Route::delete('/products-blogs/delete-img',[MediaController::class,'deleteFromCloudinary'])->name('products.delete');
     Route::post('/products/store/orders',[UserController::class,'createOrder'])->name('products.order');
     Route::get('/orders',[UserController::class,'getOrders'])->name('get.orders');
 
@@ -107,6 +113,11 @@ Route::middleware(['auth:sanctum', 'admin', 'active'])->group(function(){
     Route::post('/brands',[BrandController::class,'store'])->name('brands.store');
     Route::put('/brands/{brand}',[BrandController::class,'update'])->name('brands.update');
     Route::delete('/brands/{brand}',[BrandController::class,'destroy'])->name('brands.destroy');
+
+    //colors
+    Route::post('/colors',[ColorController::class,'store'])->name('colors.store');
+    Route::put('/colors/{color}',[ColorController::class,'update'])->name('colors.update');
+    Route::delete('/colors/{color}',[ColorController::class,'destroy'])->name('colors.destroy');
 
     //coupons
     Route::post('/coupons',[CouponController::class,'store'])->name('coupons.store');

@@ -12,6 +12,11 @@ class Product extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'color' => 'json',
+        'tags' => 'json',
+    ];
+
     public function users()
     {
         return $this->belongsToMany(User::class);

@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Models\Color;
 
 class ProductResource extends JsonResource
 {
@@ -14,6 +15,7 @@ class ProductResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $color = Color::where('id',$this->color)->first();
         return [
             'id' => $this->id,
             'title' => $this->title,
@@ -25,9 +27,9 @@ class ProductResource extends JsonResource
             'quantity' => $this->quantity,
             'sold' => $this->sold ?? 0,
             'images' => MediaResource::collection($this->whenLoaded('media')),
-            'color' => $this->color ?? [],
-            'tag' => $this->tag ?? [],
-            'total_ratings' => $this->total_ratings,
+            'colors' => new ColorResource($color) ?? [],
+            'tags' => $this->tags ?? [],
+            'total_ratings' => $this->total_ratings ?? 0,
             'ratings' => RatingResource::collection($this->whenLoaded('ratings')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

@@ -79,7 +79,9 @@ class ProductController extends Controller
             'price' => 'required',
             'category' => 'required|string',
             'brand' => 'required|string',
-            'quantity' => 'required|integer'
+            'quantity' => 'required|integer',
+            'color' => 'nullable|array',
+            'tags' => 'nullable|array',
         ]);
 
         $slug = Str::slug($data['title']);
