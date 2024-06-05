@@ -10,6 +10,7 @@ use App\Models\Coupon;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\CartResource;
 use App\Http\Resources\CartProductResource;
+use App\Http\Resources\OrderResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
@@ -235,7 +236,7 @@ class UserController extends Controller
     public function createOrder(Request $request)
     {
         $request->validate([
-            'COD' => 'required|boolean'
+            'COD' => 'required|boolean',
         ]);
 
         if (!$request->COD) {
@@ -244,7 +245,12 @@ class UserController extends Controller
 
         $user = auth()->user();
         $cart = Cart::with('products')->where('user_id', $user->id)->first();
+
+         if (!$cart || $cart->products->isEmpty()) {
+            return $this->sendError('Your cart is empty.');
+        }
         $finalAmount = $cart->cart_total;
+        // dd($cart);
 
         $order = Order::create([
             'user_id' => $user->id,
@@ -259,25 +265,68 @@ class UserController extends Controller
             'order_status' => 'Cash on Delivery'
         ]);
 
-        $order->products()->attach($cart->products->pluck('id')->toArray());
-
         foreach ($cart->products as $product) {
+
+            if ($order->products->contains($product->id)) {
+                $order->products()->updateExistingPivot($product->id, [
+                    'count' => $product->pivot->count,
+                    'color' => $product->pivot->color,
+                    'price' => $product->pivot->price,
+                    'updated_at' => now()
+                ]);
+            } else {
+                $order->products()->attach($product->id, [
+                    'id' => Str::uuid(),
+                    'count' => $product->pivot->count,
+                    'color' => $product->pivot->color,
+                    'price' => $product->pivot->price
+                ]);
+            }
+
             $product->decrement('quantity', $product->pivot->count);
             $product->increment('sold', $product->pivot->count);
         }
 
         $cart->delete();
-
-        return response()->json($order, 201);
+        $order->load('user','products');
+        return $this->sendResponse(OrderResource::make($order)
+                ->response()
+                ->getData(true), "Order made successfully" );
     }
 
     //Get orders
     public function getOrders()
     {
         $user = auth()->user();
-        $orders = Order::with('products')->where('user_id', $user->id)->get();
+        $orders = Order::where('user_id', $user->id)->get();
+        $orders->load('products');
 
-        return response()->json($orders);
+        return $this->sendResponse(OrderResource::collection($orders)
+                ->response()
+                ->getData(true), "Orders retrieved successfully" );
+    }
+
+    //Update Order Status
+    public function updateOrderStatus(Request $request, Order $order)
+    {
+        $request->validate([
+            'status' => 'required|string|in:Processing,Dispatched,Cancelled,Delivered'
+        ]);
+        if($order){
+            $order->order_status = $request->status;
+            
+            $paymentIntent = json_decode($order->payment_intent, true);
+            $paymentIntent['status'] = $request->status;
+            $order->payment_intent = json_encode($paymentIntent);
+            $order->save();
+
+            $updatedOrder = Order::where('id', $order->id)->first();
+            $updatedOrder->load('products');
+
+            return $this->sendResponse(OrderResource::make($updatedOrder)
+                ->response()
+                ->getData(true), "Order status updated successfully" );
+        }
     }
 
 }

@@ -13,10 +13,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-           Schema::create('order_products', function (Blueprint $table) {
+      Schema::create('order_products', function (Blueprint $table) {
             $table->uuid('id')->primary()->default(Str::uuid());
-            $table->foreignUuid('product_id')->constrained('products')->onDelete('cascade');
             $table->foreignUuid('order_id')->constrained('orders')->onDelete('cascade');
+            $table->foreignUuid('product_id')->constrained('products')->onDelete('cascade');
+            $table->string('color');
+            $table->integer('count');
+            $table->decimal('price', 8, 2);
             $table->timestamps();
         });
     }

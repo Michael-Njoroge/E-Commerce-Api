@@ -85,6 +85,9 @@ Route::middleware(['auth:sanctum', 'admin', 'active'])->group(function(){
     Route::put('/products/{product}',[ProductController::class,'update'])->name('products.update');
     Route::delete('/products/{product}',[ProductController::class,'destroy'])->name('products.destroy');
 
+    //orders
+    Route::put('/status/order/{order}',[UserController::class,'updateOrderStatus'])->name('products.update.status');
+
     //product categories
     Route::post('/product-category',[ProductCategoryController::class,'store'])->name('product-category.store');
     Route::put('/product-category/{productCategory}',[ProductCategoryController::class,'update'])->name('product-category.update');
