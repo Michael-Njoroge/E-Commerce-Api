@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Enquiry;
+use App\Http\Resources\EnquiryResource;
 use Illuminate\Http\Request;
 
 class EnquiryController extends Controller
@@ -12,15 +13,11 @@ class EnquiryController extends Controller
      */
     public function index()
     {
-        //
-    }
+        $enquiries = Enquiry::paginate(20);
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return $this->sendResponse(EnquiryResource::collection($enquiries)
+                ->response()
+                ->getData(true), "Enquiries retrieved successfully" );
     }
 
     /**
@@ -28,7 +25,20 @@ class EnquiryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'name' => 'required|string',
+            'phone' => 'required|string',
+            'email' => 'required|string',
+            'comment' => 'required|string',
+            'status' => 'nullable|in:Submitted,Contacted,In Progress'
+        ]);
+
+        $enquiry = Enquiry::create($data);
+        $createdEnquiry = Enquiry::where('id', $enquiry->id)->first();
+
+        return $this->sendResponse(EnquiryResource::make($createdEnquiry)
+                ->response()
+                ->getData(true), "Enquiry created successfully" );
     }
 
     /**
@@ -36,15 +46,11 @@ class EnquiryController extends Controller
      */
     public function show(Enquiry $enquiry)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Enquiry $enquiry)
-    {
-        //
+        if($enquiry){
+            return $this->sendResponse(EnquiryResource::make($enquiry)
+                ->response()
+                ->getData(true), "Enquiry retrieved successfully" );
+        }
     }
 
     /**
@@ -52,7 +58,14 @@ class EnquiryController extends Controller
      */
     public function update(Request $request, Enquiry $enquiry)
     {
-        //
+        if($enquiry){
+            $enquiry->update($request->all());
+            $updatedEnquiry = Enquiry::findOrFail($enquiry->id);
+
+            return $this->sendResponse(EnquiryResource::make($updatedEnquiry)
+                ->response()
+                ->getData(true), "Enquiry updated successfully" );
+        }
     }
 
     /**
@@ -60,6 +73,11 @@ class EnquiryController extends Controller
      */
     public function destroy(Enquiry $enquiry)
     {
-        //
+        if($enquiry){
+            $enquiry->delete();
+
+            return $this->sendResponse([], "Enquiry deleted successfully" );
+        }
     }
 }
+

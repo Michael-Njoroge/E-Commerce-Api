@@ -11,8 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('enquiry_models', function (Blueprint $table) {
-            $table->id();
+        Schema::create('enquiries', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->string('name');
+            $table->string('phone');
+            $table->string('email');
+            $table->text('comment');
+            $table->enum('status',[
+                'Submitted',
+                'Contacted',
+                'In Progress',
+            ])->default('Submitted');
             $table->timestamps();
         });
     }
@@ -22,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('enquiry_models');
+        Schema::dropIfExists('enquiries');
     }
 };
