@@ -85,6 +85,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function(){
     Route::delete('/products-blogs/delete-img',[MediaController::class,'deleteFromCloudinary'])->name('products.delete');
     Route::post('/products/store/orders',[UserController::class,'createOrder'])->name('products.order');
     Route::get('/orders',[UserController::class,'getOrders'])->name('get.orders');
+    Route::get('/all-orders',[UserController::class,'getAllOrders'])->name('get.allOrders');
 
 });
 

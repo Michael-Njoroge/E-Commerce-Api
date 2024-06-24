@@ -306,6 +306,19 @@ class UserController extends Controller
                 ->getData(true), "Orders retrieved successfully" );
     }
 
+     //Get all orders
+    public function getAllOrders()
+    {
+        $allOrders = Order::paginate(20);
+        dd($allOrders);
+
+        $allOrders->load(['products','user']);
+
+        return $this->sendResponse(OrderResource::collection($allOrders)
+                ->response()
+                ->getData(true), "All orders retrieved successfully" );
+    }
+
     //Update Order Status
     public function updateOrderStatus(Request $request, Order $order)
     {
