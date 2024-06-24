@@ -310,7 +310,6 @@ class UserController extends Controller
     public function getAllOrders()
     {
         $allOrders = Order::paginate(20);
-        dd($allOrders);
 
         $allOrders->load(['products','user']);
 
