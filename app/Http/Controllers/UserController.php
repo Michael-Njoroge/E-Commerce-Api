@@ -130,7 +130,7 @@ class UserController extends Controller
     }
 
     //Add To Cart
-    public function addToCart(Request $request, Product $product)
+    public function addToCart(Request $request)
     {
         $request->validate([
             'cart' => 'required|array'
@@ -146,13 +146,15 @@ class UserController extends Controller
 
 
         foreach ($request->cart as $cartItem) {
+            $product = Product::find($cartItem['product_id']);
             $count = $cartItem['count'];
             $color = $cartItem['color'];
+            $product_id = $cartItem['product_id'];
             $price = $product->price;
 
             $products[] = [
                 'id' => Str::uuid(),
-                'product_id' => $product->id,
+                'product_id' => $product_id,
                 'count' => $count,
                 'color' => $color,
                 'price' => $price

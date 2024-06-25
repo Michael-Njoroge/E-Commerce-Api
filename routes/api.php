@@ -75,7 +75,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function(){
     //products
     Route::put('/products/{product}/wishlist',[ProductController::class,'addToWishlist'])->name('products.wishlist');
     Route::put('/products/{product}/rate',[ProductController::class,'rateProduct'])->name('products.rate');
-    Route::post('/products/{product}/cart',[UserController::class,'addToCart'])->name('products.cart');
+    Route::post('/products/add-cart',[UserController::class,'addToCart'])->name('products.cart');
     Route::get('/user-cart',[UserController::class,'getUserCart'])->name('user.cart');
     Route::delete('/empty-user-cart',[UserController::class,'emptyUserCart'])->name('empty.user.cart');
 

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->uuid('id')->primary()->default(Str::uuid());
             $table->foreignUuid('order_id')->constrained('orders')->onDelete('cascade');
             $table->foreignUuid('product_id')->constrained('products')->onDelete('cascade');
-            $table->string('color');
+            $table->foreignUuid('color')->constrained('colors')->onDelete('cascade');
             $table->integer('count');
             $table->decimal('price', 8, 2);
             $table->timestamps();
