@@ -309,9 +309,7 @@ class UserController extends Controller
      //Get all orders
     public function getAllOrders()
     {
-        $allOrders = Order::paginate(20);
-
-        $allOrders->load(['products','user']);
+        $allOrders = Order::with(['products','user'])->get();
 
         return $this->sendResponse(OrderResource::collection($allOrders)
                 ->response()

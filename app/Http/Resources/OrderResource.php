@@ -22,7 +22,7 @@ class OrderResource extends JsonResource
         'payment_intent' => $paymentIntent,
         'order_status' => $this->order_status,
         'orderedBy' => new UserResource($user),
-        'products' => ProductResource::collection($this->products),
+        'products' => ProductResource::collection($this->whenLoaded('products')),
         'updated_at' => $this->updated_at,
         'created_at' => $this->created_at
         ];

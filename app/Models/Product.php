@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
@@ -39,9 +40,9 @@ class Product extends Model
                     ->withTimestamps();
     }
 
-    public function orders()
+    public function orders(): BelongsToMany
     {
-        return $this->belongsToMany(Order::class, 'order_products')
+        return $this->belongsToMany(Order::class, 'order_products', 'order_id', 'product_id')
                     ->withPivot('count', 'color', 'price')
                     ->withTimestamps();
     }

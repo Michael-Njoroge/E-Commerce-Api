@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Route;
 /////////////////////////////// ROUTES THAT NEED NO AUTHENTICATION //////////////////////////////////////////////////////
 //products
 Route::get('/products',[ProductController::class,'index'])->name('products.index');
+Route::get('/orders',[UserController::class,'getOrders'])->name('get.orders');
+    Route::get('/all-orders',[UserController::class,'getAllOrders'])->name('get.allOrders');
 Route::get('/products/{product}',[ProductController::class,'show'])->name('products.show');
 
 //product categories
@@ -84,8 +86,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function(){
     Route::post('/products-blogs/upload',[MediaController::class,'upload'])->name('products.upload');
     Route::delete('/products-blogs/delete-img',[MediaController::class,'deleteFromCloudinary'])->name('products.delete');
     Route::post('/products/store/orders',[UserController::class,'createOrder'])->name('products.order');
-    Route::get('/orders',[UserController::class,'getOrders'])->name('get.orders');
-    Route::get('/all-orders',[UserController::class,'getAllOrders'])->name('get.allOrders');
+   
 
 });
 
@@ -99,6 +100,7 @@ Route::middleware(['auth:sanctum', 'admin', 'active'])->group(function(){
 
     //orders
     Route::put('/status/order/{order}',[UserController::class,'updateOrderStatus'])->name('products.update.status');
+
 
     //product categories
     Route::post('/product-category',[ProductCategoryController::class,'store'])->name('product-category.store');
