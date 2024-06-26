@@ -10,7 +10,8 @@ class CreateMediaTable extends Migration
     {
         Schema::create('media', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuidMorphs('medially');
+            $table->uuid('medially_id')->nullable();  
+            $table->string('medially_type')->nullable(); 
             $table->text('file_url');
             $table->text('asset_id');
             $table->text('public_id');

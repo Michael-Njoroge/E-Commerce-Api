@@ -7,6 +7,7 @@ use App\Http\Resources\UserResource;
 use App\Http\Resources\RatingResource;
 use App\Models\Product;
 use App\Models\Rating;
+use App\Models\Media;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 
@@ -77,11 +78,14 @@ class ProductController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required|string|max:255',
             'price' => 'required',
-            'category' => 'required|string',
-            'brand' => 'required|string',
+            'category' => 'required|exists: product_categories, id',
+            'brand' => 'required|exists: brands, id',
             'quantity' => 'required|integer',
             'color' => 'nullable|array',
+            'color.*' => 'uuid|exists:colors,id',
             'tags' => 'nullable|array',
+            'media_ids' => 'nullable|array', 
+            'media_ids.*' => 'uuid|exists:media,id',
         ]);
 
         $slug = Str::slug($data['title']);
@@ -93,7 +97,16 @@ class ProductController extends Controller
             return $this->sendError($error = 'Product with this slug already exists', $code = 403);
         }
 
+        $mediaData = $request->input('media_ids');
+
+        unset($data['media_ids']);
+
         $productSaved = Product::create($data);
+
+        if (!empty($mediaData)) {
+            Media::whereIn('id', $mediaData)
+                ->update(['medially_id' => $productSaved->id, 'medially_type' => Product::class]);
+        }
         $productSaved->load(['media', 'ratings.user']);
 
         return $this->sendResponse(ProductResource::make($productSaved)
