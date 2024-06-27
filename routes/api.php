@@ -46,7 +46,8 @@ Route::get('/blogs/{blog}',[BlogController::class,'show'])->name('blogs.show');
 
 //coupons
 Route::get('/coupons',[CouponController::class,'index'])->name('coupons.index');
-Route::get('/coupons/{coupon}',[CouponController::class,'show'])->name('coupons.show');
+Route::get('/coupons/{coupon}',[CouponController::class,'show'])->name('coupons.show'); 
+Route::post('/products-blogs/upload',[MediaController::class,'upload'])->name('products.upload');
 
 ////////////////////////////// AUTHENTICATION ROUTES ///////////////////////////////////////////////////////////////////
 Route::group(['prefix'=>'auth'], function(){
@@ -83,7 +84,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function(){
     Route::post('/cart/apply-coupon',[UserController::class,'applyCoupon'])->name('apply.coupon');
 
 
-    Route::post('/products-blogs/upload',[MediaController::class,'upload'])->name('products.upload');
+   
     Route::delete('/products-blogs/delete-img',[MediaController::class,'deleteFromCloudinary'])->name('products.delete');
     Route::post('/products/store/orders',[UserController::class,'createOrder'])->name('products.order');
    

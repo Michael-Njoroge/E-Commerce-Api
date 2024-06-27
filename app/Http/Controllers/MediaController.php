@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\BlogResource;
+use App\Http\Resources\MediaResource;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use App\Models\Media;
 use App\Models\Product;
@@ -98,19 +99,9 @@ class MediaController extends Controller
                 return $this->sendError($error = 'Invalid model type');
             }
         }else{
-             $response = collect($mediaEntries)->map(function ($media) {
-                return [
-                    'id' => $media->id,
-                    'file_url' => $media->file_url,
-                    'public_id' => $media->public_id,
-                    'asset_id' => $media->asset_id,
-                ];
-            });
-
-        return response()->json([
-            'media' => $response,
-            'message' => 'Images uploaded successfully.',
-        ]);
+            return $this->sendResponse(MediaResource::collection($mediaEntries)
+                    ->response()
+                    ->getData(true), 'Images uploaded successfully');
         }
     }
 
