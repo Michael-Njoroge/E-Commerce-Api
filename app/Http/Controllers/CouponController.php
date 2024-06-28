@@ -28,7 +28,7 @@ class CouponController extends Controller
         $data = $request->validate([
             'name' => 'required|string|unique:coupons,name',
             'expiry' => 'required|date_format:Y-m-d',
-            'discount' => 'required|string'
+            'discount' => 'required|numeric'
         ]);
 
         $data['name'] = strtoupper($data['name']);
