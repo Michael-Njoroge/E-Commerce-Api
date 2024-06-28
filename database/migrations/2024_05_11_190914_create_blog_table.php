@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('blogs', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('title');
-            $table->string('description');
+            $table->text('description');
             $table->foreignUuid('category')->constrained('blog_categories')->onDelete('cascade');
             $table->integer('num_views')->default(0);
             $table->boolean('is_liked')->default(false);

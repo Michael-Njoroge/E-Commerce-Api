@@ -21,7 +21,7 @@ class BlogResource extends JsonResource
             'id' => $this->id,
             'title'=> $this->title,
             'description' => $this->description,
-            'category' => $new BlogCategoryResource($category),
+            'category' => new BlogCategoryResource($category),
             'is_liked' => (bool)$this->is_liked,
             'is_disliked' => (bool)$this->is_disliked,
             'likes' => $this->liked_by_count,
