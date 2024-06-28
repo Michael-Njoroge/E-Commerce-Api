@@ -33,6 +33,16 @@ class Product extends Model
         return $this->morphMany(Media::class, 'medially');
     }
 
+    public function category()
+    {
+        return $this->belongsTo(ProductCategory::class);
+    }
+
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class);
+    }
+
     public function carts()
     {
         return $this->belongsToMany(Cart::class, 'cart_product')

@@ -39,7 +39,7 @@ class ProductController extends Controller
         $page = $request->query('page');
         $limit = $request->query('limit', 10);
         $products = $query->paginate($limit);
-        $products = $query->with(['media', 'ratings.user'])->paginate($limit);
+        $products = $query->with(['media', 'brand','category','ratings.user'])->paginate($limit);
 
         // Remove fields from the request query parameters
         $excludeFields = ['page', 'sort', 'limit'];
@@ -76,14 +76,14 @@ class ProductController extends Controller
     {
         $data = $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'required|string|max:255',
+            'description' => 'required|string',
             'price' => 'required',
-            'category' => 'required|exists: product_categories, id',
-            'brand' => 'required|exists: brands, id',
+            'category' => 'required|uuid|exists:product_categories,id',
+            'brand' => 'required|uuid|exists:brands,id',
             'quantity' => 'required|integer',
             'color' => 'nullable|array',
             'color.*' => 'uuid|exists:colors,id',
-            'tags' => 'nullable|array',
+            'tags' => 'required|string',
             'media_ids' => 'nullable|array', 
             'media_ids.*' => 'uuid|exists:media,id',
         ]);

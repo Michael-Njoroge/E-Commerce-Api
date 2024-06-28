@@ -24,7 +24,7 @@ return new class extends Migration
             $table->integer('sold')->default(0);
             $table->decimal('total_ratings', 8, 2)->default(0);
             $table->json('color')->nullable();
-            $table->json('tags')->nullable();
+            $table->string('tags');
             $table->timestamps();
         });
 
