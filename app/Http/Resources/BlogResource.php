@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Models\BlogCategory;
 
 class BlogResource extends JsonResource
 {
@@ -14,11 +15,13 @@ class BlogResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $category = BlogCategory::where('id',$this->category)->first();
+
         return [
             'id' => $this->id,
             'title'=> $this->title,
             'description' => $this->description,
-            'category' => $this->category,
+            'category' => $new BlogCategoryResource($category),
             'is_liked' => (bool)$this->is_liked,
             'is_disliked' => (bool)$this->is_disliked,
             'likes' => $this->liked_by_count,

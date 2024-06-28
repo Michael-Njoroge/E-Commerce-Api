@@ -11,5 +11,10 @@ class BlogCategory extends Model
     use HasFactory,HasUuids;
 
     protected $guarded = [];
+
+    public function blogs()
+    {
+        return $this->hasMany(Blog::class);
+    }
     
 }

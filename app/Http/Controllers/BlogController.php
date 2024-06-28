@@ -14,7 +14,7 @@ class BlogController extends Controller
      */
     public function index()
     {
-        $blogs = Blog::with(['likedBy', 'dislikedBy', 'media'])->withCount('likedBy', 'dislikedBy')->paginate(10);
+        $blogs = Blog::with(['likedBy', 'dislikedBy', 'media', 'category'])->withCount('likedBy', 'dislikedBy')->paginate(10);
         $blogsResource = BlogResource::collection($blogs);
         $responseData = $blogsResource->response()->getData(true);
 
@@ -37,7 +37,7 @@ class BlogController extends Controller
         $data = $request->validate([
             "title"=> "string|required",
             "description" => "required|string",
-            "category" => "required|string"
+            "category" => "required|uuid|exists:blog_categories,id"
         ]);
 
         $blog = Blog::create($data);
