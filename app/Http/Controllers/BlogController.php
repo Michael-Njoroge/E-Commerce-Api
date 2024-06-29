@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\BlogResource;
+use Illuminate\Support\Facades\DB;
 use App\Http\Resources\UserResource;
 use App\Models\Media;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
@@ -81,19 +82,42 @@ class BlogController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Blog $blog)
-    {
-        if($blog){
-            $blog->update($request->all());
+ 
+public function update(Request $request, Blog $blog)
+{
+    if ($blog) {
+        DB::beginTransaction();
+
+        try {
+            $data = $request->all();
+
+            if ($request->has('media_ids')) {
+                $mediaData = $request->input('media_ids');
+                unset($data['media_ids']);
+
+                Media::whereIn('id', $mediaData)
+                    ->update(['medially_id' => $blog->id, 'medially_type' => Blog::class]);
+            }
+
+            $blog->update($data);
+
             $updatedBlog = Blog::findOrFail($blog->id);
-            $updatedBlog->loadCount(['likedBy','dislikedBy']);
+            $updatedBlog->loadCount(['likedBy', 'dislikedBy']);
             $updatedBlog->load('media');
+
+            DB::commit();
 
             return $this->sendResponse(BlogResource::make($updatedBlog)
                 ->response()
-                ->getData(true), "Blog updated successfully" );
+                ->getData(true), "Blog updated successfully");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->sendError('Error updating blog', $e->getMessage());
         }
+    } else {
+        return $this->sendError('Blog not found');
     }
+}
 
     /**
      * Remove the specified resource from storage.
