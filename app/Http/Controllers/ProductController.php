@@ -8,6 +8,7 @@ use App\Http\Resources\RatingResource;
 use App\Models\Product;
 use App\Models\Rating;
 use App\Models\Media;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 
@@ -103,7 +104,7 @@ class ProductController extends Controller
 
         $productSaved = Product::create($data);
 
-        if (!empty($mediaData)) {
+        if(!empty($mediaData)) {
             Media::whereIn('id', $mediaData)
                 ->update(['medially_id' => $productSaved->id, 'medially_type' => Product::class]);
         }
@@ -152,6 +153,20 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         if($product) {
+        
+        $mediaItems = Media::where('medially_id', $product->id)
+                       ->where('medially_type', Product::class)
+                       ->get();
+
+        foreach ($mediaItems as $mediaItem) {
+            try {
+                Cloudinary::destroy($mediaItem->public_id);
+                $mediaItem->delete();
+            } catch (\Exception $e) {
+                return $this->sendError($error = "Failed to delete image from Cloudinary");
+            }
+        }
+
         $product->delete();
         return $this->sendResponse([], 'Product deleted successfully');
         }

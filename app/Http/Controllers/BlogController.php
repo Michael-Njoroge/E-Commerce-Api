@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\BlogResource;
 use App\Http\Resources\UserResource;
+use App\Models\Media;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use App\Models\Blog;
 use Illuminate\Http\Request;
 
@@ -37,10 +39,20 @@ class BlogController extends Controller
         $data = $request->validate([
             "title"=> "string|required",
             "description" => "required|string",
-            "category" => "required|uuid|exists:blog_categories,id"
+            "category" => "required|uuid|exists:blog_categories,id",
+            'media_ids' => 'nullable|array', 
+            'media_ids.*' => 'uuid|exists:media,id',
         ]);
 
+        $mediaData = $request->input('media_ids');
+
+        unset($data['media_ids']);
+
         $blog = Blog::create($data);
+        if(!empty($mediaData)) {
+            Media::whereIn('id', $mediaData)
+                ->update(['medially_id' => $blog->id, 'medially_type' => Blog::class]);
+        }
         $createdBlog = Blog::findOrFail($blog->id);
         $createdBlog->loadCount(['likedBy','dislikedBy']);
         $createdBlog->load('media');
@@ -93,7 +105,20 @@ class BlogController extends Controller
         if(!$blog){
             return $this->sendError($error="Blog not found");
         }
-        
+
+        $mediaItems = Media::where('medially_id', $blog->id)
+                       ->where('medially_type', Blog::class)
+                       ->get();
+
+        foreach ($mediaItems as $mediaItem) {
+            try {
+                Cloudinary::destroy($mediaItem->public_id);
+                $mediaItem->delete();
+            } catch (\Exception $e) {
+                return $this->sendError($error = "Failed to delete image from Cloudinary");
+            }
+        }
+            
         $blog->delete();
         return $this->sendResponse($result='', $message="Blog deleted successfully");
     }
