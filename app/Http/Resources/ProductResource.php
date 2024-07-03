@@ -17,7 +17,7 @@ class ProductResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $color = Color::where('id',$this->color)->first();
+        $colors = Color::whereIn('id', $this->color)->get();
         $brand = Brand::where('id',$this->brand)->first();
         $category = ProductCategory::where('id',$this->category)->first();
         return [
@@ -31,7 +31,7 @@ class ProductResource extends JsonResource
             'quantity' => $this->quantity,
             'sold' => $this->sold ?? 0,
             'images' => MediaResource::collection($this->whenLoaded('media')),
-            'colors' => new ColorResource($color) ?? [],
+            'colors' => ColorResource::collection($colors),
             'tags' => $this->tags,
             'total_ratings' => $this->total_ratings ?? 0,
             'ratings' => RatingResource::collection($this->whenLoaded('ratings')),

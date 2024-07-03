@@ -16,8 +16,6 @@ use Illuminate\Support\Facades\Route;
 /////////////////////////////// ROUTES THAT NEED NO AUTHENTICATION //////////////////////////////////////////////////////
 //products
 Route::get('/products',[ProductController::class,'index'])->name('products.index');
-Route::get('/orders',[UserController::class,'getOrders'])->name('get.orders');
-    Route::get('/all-orders',[UserController::class,'getAllOrders'])->name('get.allOrders');
 Route::get('/products/{product}',[ProductController::class,'show'])->name('products.show');
 
 //product categories
@@ -101,6 +99,8 @@ Route::middleware(['auth:sanctum', 'admin', 'active'])->group(function(){
 
     //orders
     Route::put('/status/order/{order}',[UserController::class,'updateOrderStatus'])->name('products.update.status');
+    Route::get('/user-orders/{user}',[UserController::class,'getUserOrders'])->name('get.user.orders');
+    Route::get('/all-orders',[UserController::class,'getAllOrders'])->name('get.allOrders');
 
 
     //product categories

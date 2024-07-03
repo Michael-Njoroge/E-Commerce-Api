@@ -30,7 +30,7 @@ class EnquiryController extends Controller
             'phone' => 'required|string',
             'email' => 'required|string',
             'comment' => 'required|string',
-            'status' => 'nullable|in:Submitted,Contacted,In Progress'
+            'status' => 'nullable|in:Submitted,Contacted,In Progress, Resolved'
         ]);
 
         $enquiry = Enquiry::create($data);

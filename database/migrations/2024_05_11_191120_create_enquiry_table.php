@@ -21,6 +21,7 @@ return new class extends Migration
                 'Submitted',
                 'Contacted',
                 'In Progress',
+                'Resolved'
             ])->default('Submitted');
             $table->timestamps();
         });

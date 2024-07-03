@@ -266,46 +266,35 @@ class UserController extends Controller
             ]),
             'order_status' => 'Cash on Delivery'
         ]);
-
         foreach ($cart->products as $product) {
-
-            if ($order->products->contains($product->id)) {
-                $order->products()->updateExistingPivot($product->id, [
-                    'count' => $product->pivot->count,
-                    'color' => $product->pivot->color,
-                    'price' => $product->pivot->price,
-                    'updated_at' => now()
-                ]);
-            } else {
-                $order->products()->attach($product->id, [
-                    'id' => Str::uuid(),
-                    'count' => $product->pivot->count,
-                    'color' => $product->pivot->color,
-                    'price' => $product->pivot->price
-                ]);
-            }
+            $order->products()->attach($product->id, [
+                'id' => Str::uuid(),
+                'count' => $product->pivot->count,
+                'color' => $product->pivot->color,
+                'price' => $product->pivot->price
+            ]);
 
             $product->decrement('quantity', $product->pivot->count);
             $product->increment('sold', $product->pivot->count);
         }
 
+
         $cart->delete();
         $order->load('user','products');
         return $this->sendResponse(OrderResource::make($order)
                 ->response()
-                ->getData(true), "Order made successfully" );
+                ->getData(true), "Order created successfully" );
     }
 
-    //Get orders
-    public function getOrders()
+    //GetUser user orders
+    public function getUserOrders(User $user)
     {
-        $user = auth()->user();
-        $orders = Order::where('user_id', $user->id)->get();
-        $orders->load('products');
+        $orders = Order::where('user_id', $user->id)->with('products')->get();
+         // dd($orders->toArray());
 
         return $this->sendResponse(OrderResource::collection($orders)
                 ->response()
-                ->getData(true), "Orders retrieved successfully" );
+                ->getData(true), "User orders retrieved successfully" );
     }
 
      //Get all orders
