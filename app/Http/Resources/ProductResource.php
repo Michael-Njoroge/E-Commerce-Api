@@ -32,6 +32,9 @@ class ProductResource extends JsonResource
             'sold' => $this->sold ?? 0,
             'images' => MediaResource::collection($this->whenLoaded('media')),
             'colors' => ColorResource::collection($colors),
+             'count' => $this->whenPivotLoaded('order_products', function () {
+                return $this->pivot->count;
+            }),
             'tags' => $this->tags,
             'total_ratings' => $this->total_ratings ?? 0,
             'ratings' => RatingResource::collection($this->whenLoaded('ratings')),

@@ -16,12 +16,11 @@ class OrderResource extends JsonResource
     public function toArray(Request $request): array
     {
         $paymentIntent = json_decode($this->payment_intent, true);
-        $user = User::find($this->user_id);
         return [
         'id' => $this->id,
         'payment_intent' => $paymentIntent,
         'order_status' => $this->order_status,
-        'orderedBy' => new UserResource($user),
+        'orderedBy' => new UserResource($this->whenLoaded('user')),
         'products' => ProductResource::collection($this->whenLoaded('products')),
         'updated_at' => $this->updated_at,
         'created_at' => $this->created_at
