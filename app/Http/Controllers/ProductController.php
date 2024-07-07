@@ -6,6 +6,7 @@ use App\Http\Resources\ProductResource;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\RatingResource;
 use App\Models\Product;
+use App\Models\User;
 use App\Models\Rating;
 use App\Models\Media;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
@@ -183,10 +184,14 @@ class ProductController extends Controller
     }
 
     //Add to whishlist
-    public function addToWishlist(Product $product)
+    public function addToWishlist(Request $request)
     {
-        $user = auth()->user();
+        $data = $request->validate([
+            'product_id' => 'required|uuid|exists:products,id' 
+        ]);
 
+        $user = auth()->user();
+        $product = Product::findOrFail($data['product_id']);
         if ($user->wishlist()->where('product_id', $product->id)->exists()) {
             // Remove product from wishlist
             $user->wishlist()->detach($product->id);
