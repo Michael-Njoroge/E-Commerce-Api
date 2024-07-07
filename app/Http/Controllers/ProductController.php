@@ -137,7 +137,14 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         if($product){
-        $product->update($request->all());
+        $mediaData = $request->input('media_ids', []);
+        if (!empty($mediaData)) {
+            Media::whereIn('id', $mediaData)
+                ->update(['medially_id' => $product->id, 'medially_type' => Product::class]);
+        }
+        $requestData = $request->except('media_ids');
+        
+        $product->update($requestData);
         $updatedProduct = Product::findOrFail($product->id);
         $updatedProduct->load(['media', 'ratings.user']);
 
