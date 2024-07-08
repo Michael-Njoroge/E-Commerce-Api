@@ -73,7 +73,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function(){
 
     //products
     Route::put('/wishlist',[ProductController::class,'addToWishlist'])->name('products.wishlist');
-    Route::get('/wishlist/{user}',[ProductController::class,'getWishlist'])->name('products.get.wishlist');
+    Route::get('/wishlist',[ProductController::class,'getWishlist'])->name('products.get.wishlist');
     Route::put('/products/{product}/rate',[ProductController::class,'rateProduct'])->name('products.rate');
     Route::post('/products/add-cart',[UserController::class,'addToCart'])->name('products.cart');
     Route::get('/user-cart',[UserController::class,'getUserCart'])->name('user.cart');

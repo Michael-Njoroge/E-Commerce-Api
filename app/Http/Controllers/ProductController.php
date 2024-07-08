@@ -214,8 +214,9 @@ class ProductController extends Controller
     }
 
     //Get user whishlist
-    public function getWishlist(User $user)
+    public function getWishlist()
     {
+        $user = auth()->user();
         $wishlist = $user->wishlist()->get();
         $wishlist->load(['media', 'ratings.user']);
         return $this->sendResponse(ProductResource::collection($wishlist)
