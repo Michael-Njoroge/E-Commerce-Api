@@ -22,7 +22,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::with(['wishlist','wishlist.media','ratings.product'])->paginate(20);
+        $users = User::with(['ratings.product'])->paginate(20);
 
         return $this->sendResponse(UserResource::collection($users)
                 ->response()
@@ -35,7 +35,7 @@ class UserController extends Controller
     public function show(User $user)
     {
         if($user){
-        $user->load(['wishlist','wishlist.media', 'ratings.product']);
+        $user->load(['ratings.product']);
         return $this->sendResponse(UserResource::make($user)
                 ->response()
                 ->getData(true), "User retrieved successfully" );
@@ -52,7 +52,7 @@ class UserController extends Controller
         if($user){
             $user->update($request->all());
             $updatedUser = User::findOrFail($user->id);
-            $updatedUser->load(['wishlist','wishlist.media', 'ratings.product']);
+            $updatedUser->load(['ratings.product']);
             return $this->sendResponse(UserResource::make($updatedUser)
                 ->response()
                 ->getData(true), "User updated successfully" );
@@ -86,7 +86,7 @@ class UserController extends Controller
 
         $newRole = ($user->role === 'admin') ? 'user' : 'admin';
         $user->update(['role' => $newRole]);
-        $user->load(['wishlist','wishlist.media', 'ratings.product']);
+        $user->load(['ratings.product']);
 
         $message = 'User role was changed into ' . ($user->role === 'admin' ? 'Admin' : 'Regular User');
 
@@ -102,7 +102,7 @@ class UserController extends Controller
 
         $user->is_blocked = !$user->is_blocked;
         $user->save();
-        $user->load(['wishlist','wishlist.media', 'ratings.product']);
+        $user->load(['ratings.product']);
 
         $message = 'User was ' . ($user->is_blocked ? 'Blocked' : 'Unblocked');
 
@@ -121,7 +121,7 @@ class UserController extends Controller
         if($user){
             $user->update($data);
             $updatedUser = User::findOrFail($user->id);
-            $updatedUser->load(['wishlist','wishlist.media', 'ratings.product']);
+            $updatedUser->load(['ratings.product']);
 
             return $this->sendResponse(UserResource::make($updatedUser)
                 ->response()

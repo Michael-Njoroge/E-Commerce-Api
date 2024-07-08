@@ -89,7 +89,7 @@ public function update(Request $request, Blog $blog)
         $mediaData = $request->input('media_ids', []);
         if (!empty($mediaData)) {
             Media::whereIn('id', $mediaData)
-                ->update(['medially_id' => $product->id, 'medially_type' => Product::class]);
+                ->update(['medially_id' => $blog->id, 'medially_type' => Blog::class]);
         }
         $requestData = $request->except('media_ids');
 

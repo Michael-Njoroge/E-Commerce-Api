@@ -213,6 +213,16 @@ class ProductController extends Controller
         }
     }
 
+    //Get user whishlist
+    public function getWishlist(User $user)
+    {
+        $wishlist = $user->wishlist()->get();
+        $wishlist->load(['media', 'ratings.user']);
+        return $this->sendResponse(ProductResource::collection($wishlist)
+                    ->response()
+                    ->getData(true), "User wishlist retrieved successfully" );
+    }
+
   //Rate Product
   public function rateProduct(Request $request, Product $product)
     {
