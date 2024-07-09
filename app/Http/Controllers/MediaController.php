@@ -41,7 +41,11 @@ class MediaController extends Controller
 
             $file_manager = new ImageManager(new Driver());
             $thumbImage = $file_manager->read($tempPath);
-            $thumbImage->resize(300, 300);
+            if ($modelType === 'blog') {
+                $thumbImage->resize(800, 600);
+            }else{
+                $thumbImage->resize(300, 300);
+            }
 
             $thumbImage->save($tempPath);
 

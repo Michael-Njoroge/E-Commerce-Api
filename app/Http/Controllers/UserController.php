@@ -132,43 +132,59 @@ class UserController extends Controller
     //Add To Cart
     public function addToCart(Request $request)
     {
-        $request->validate([
-            'cart' => 'required|array'
+        $data = $request->validate([
+            'product' => 'required|uuid|exists:products,id',
+            'color' => 'required|uuid|exists:colors,id',
+            'quantity' => 'required|numeric',
         ]);
 
         $user = auth()->user();
 
-        // Clear existing cart
-        Cart::where('user_id', $user->id)->delete();
+        $product = Product::find($data['product']);
 
-        $products = [];
-        $cartTotal = 0;
-
-
-        foreach ($request->cart as $cartItem) {
-            $product = Product::find($cartItem['product_id']);
-            $count = $cartItem['count'];
-            $color = $cartItem['color'];
-            $product_id = $cartItem['product_id'];
-            $price = $product->price;
-
-            $products[] = [
-                'id' => Str::uuid(),
-                'product_id' => $product_id,
-                'count' => $count,
-                'color' => $color,
-                'price' => $price
-            ];
-
-            $cartTotal += $price * $count;
+        if (!in_array($data['color'], $product->color)) {
+            return $this->sendError('Selected color is not available for this product');
         }
 
-        $cart = Cart::create([
-            'user_id' => $user->id,
-            'cart_total' => $cartTotal
+        $quantity = $data['quantity'];
+        $color = $data['color'];
+        $price = $product->price;
+
+        if ($quantity > $product->quantity) {
+            return $this->sendError('Requested quantity exceeds available stock');
+        }
+
+        $cartTotal = $price * $quantity;
+
+        $cart = Cart::firstOrCreate([
+        'user_id' => $user->id,
+        ], [
+            'cart_total' => 0
         ]);
 
-        $cart->products()->attach($products);
+        $existingCartItem = $cart->products()->where('product_id', $product->id)->where('cart_product.color', $color)->first();
+
+        if ($existingCartItem) {
+            $newQuantity = $existingCartItem->pivot->quantity + $quantity;
+
+            if ($newQuantity > $product->quantity) {
+                return $this->sendError('Your cart quantity exceeds available stock');
+            }
+
+            $existingCartItem->pivot->quantity = $newQuantity;
+            $existingCartItem->pivot->price += $cartTotal;
+            $existingCartItem->pivot->save();
+        } else {
+            $cart->products()->attach($product->id, [
+                'quantity' => $quantity,
+                'color' => $color,
+                'price' => $price
+            ]);
+        }
+
+        $cart->cart_total += $cartTotal;
+        $cart->save();
+
         $cart->load(['user','products']);
 
         return $this->sendResponse(CartResource::make($cart)

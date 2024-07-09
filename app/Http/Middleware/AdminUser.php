@@ -19,6 +19,7 @@ class AdminUser
         if($user->role !== 'admin'){
             return response()->json([
                 'status' => false,
+                'code' => 401,
                 'message' => 'Your are not an admin'
             ]);
         }

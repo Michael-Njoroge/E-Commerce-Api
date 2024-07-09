@@ -19,7 +19,7 @@ class CartProductResource extends JsonResource
         return [
             'id' => $this->pivot->cart_id,
             'product' => new ProductResource($product),
-            'count' => $this->pivot->count,
+            'quantity' => $this->pivot->quantity,
             'color' => $this->pivot->color,
             'price' => $this->pivot->price,
         ];

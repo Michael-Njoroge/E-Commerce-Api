@@ -13,13 +13,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('cart_product', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(Str::uuid());
             $table->foreignUuid('cart_id')->constrained('carts')->onDelete('cascade');
             $table->foreignUuid('product_id')->constrained('products')->onDelete('cascade');
-            $table->string('color');
-            $table->integer('count');
+            $table->foreignUuid('color')->constrained('colors')->onDelete('cascade');
+            $table->integer('quantity');
             $table->decimal('price', 8, 2);
             $table->timestamps();
+
+            $table->unique(['cart_id', 'product_id']);
         });
     }
 

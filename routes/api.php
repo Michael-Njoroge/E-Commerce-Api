@@ -34,10 +34,6 @@ Route::get('/brands/{brand}',[BrandController::class,'show'])->name('brand.show'
 Route::get('/colors',[ColorController::class,'index'])->name('color.index');
 Route::get('/colors/{color}',[ColorController::class,'show'])->name('color.show');
 
-//enquiry
-Route::get('/enquiries',[EnquiryController::class,'index'])->name('enquiries.index');
-Route::get('/enquiries/{enquiry}',[EnquiryController::class,'show'])->name('enquiries.show');
-
 //blogs
 Route::get('/blogs',[BlogController::class,'index'])->name('blogs.index');
 Route::get('/blogs/{blog}',[BlogController::class,'show'])->name('blogs.show');
@@ -70,6 +66,9 @@ Route::middleware(['auth:sanctum', 'active'])->group(function(){
     //blogs
     Route::put('/blogs/likes/{blog}',[BlogController::class,'likeBlog'])->name('blogs.like');
     Route::put('/blogs/dislikes/{blog}',[BlogController::class,'dislikeBlog'])->name('blogs.dislike');
+
+    //enquiries
+    Route::post('/enquiries',[EnquiryController::class,'store'])->name('enquiries.store');
 
     //products
     Route::put('/wishlist',[ProductController::class,'addToWishlist'])->name('products.wishlist');
@@ -130,9 +129,11 @@ Route::middleware(['auth:sanctum', 'admin', 'active'])->group(function(){
     Route::delete('/colors/{color}',[ColorController::class,'destroy'])->name('colors.destroy');
 
     //enquiry
-    Route::post('/enquiries',[EnquiryController::class,'store'])->name('enquiries.store');
     Route::put('/enquiries/{enquiry}',[EnquiryController::class,'update'])->name('enquiries.update');
     Route::delete('/enquiries/{enquiry}',[EnquiryController::class,'destroy'])->name('enquiries.destroy');
+    Route::get('/enquiries',[EnquiryController::class,'index'])->name('enquiries.index');
+    Route::get('/enquiries/{enquiry}',[EnquiryController::class,'show'])->name('enquiries.show');
+
 
     //coupons
     Route::post('/coupons',[CouponController::class,'store'])->name('coupons.store');
