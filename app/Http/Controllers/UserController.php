@@ -22,7 +22,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::with(['ratings.product'])->paginate(20);
+        $users = User::paginate(20);
 
         return $this->sendResponse(UserResource::collection($users)
                 ->response()
@@ -35,7 +35,6 @@ class UserController extends Controller
     public function show(User $user)
     {
         if($user){
-        $user->load(['ratings.product']);
         return $this->sendResponse(UserResource::make($user)
                 ->response()
                 ->getData(true), "User retrieved successfully" );
@@ -52,7 +51,6 @@ class UserController extends Controller
         if($user){
             $user->update($request->all());
             $updatedUser = User::findOrFail($user->id);
-            $updatedUser->load(['ratings.product']);
             return $this->sendResponse(UserResource::make($updatedUser)
                 ->response()
                 ->getData(true), "User updated successfully" );
@@ -86,7 +84,6 @@ class UserController extends Controller
 
         $newRole = ($user->role === 'admin') ? 'user' : 'admin';
         $user->update(['role' => $newRole]);
-        $user->load(['ratings.product']);
 
         $message = 'User role was changed into ' . ($user->role === 'admin' ? 'Admin' : 'Regular User');
 
@@ -102,7 +99,6 @@ class UserController extends Controller
 
         $user->is_blocked = !$user->is_blocked;
         $user->save();
-        $user->load(['ratings.product']);
 
         $message = 'User was ' . ($user->is_blocked ? 'Blocked' : 'Unblocked');
 
@@ -121,7 +117,6 @@ class UserController extends Controller
         if($user){
             $user->update($data);
             $updatedUser = User::findOrFail($user->id);
-            $updatedUser->load(['ratings.product']);
 
             return $this->sendResponse(UserResource::make($updatedUser)
                 ->response()
@@ -135,7 +130,7 @@ class UserController extends Controller
         $data = $request->validate([
             'product' => 'required|uuid|exists:products,id',
             'color' => 'required|uuid|exists:colors,id',
-            'quantity' => 'required|numeric',
+            'quantity' => 'required|string',
         ]);
 
         $user = auth()->user();
@@ -199,22 +194,116 @@ class UserController extends Controller
         $cart = Cart::with('products','products.media')->where('user_id', $user->id)->first();
 
         if ($cart) {
-        return $this->sendResponse(
-            CartResource::make($cart)
+        return $this->sendResponse(CartResource::make($cart)
                 ->response()
-                ->getData(true),
-            "User cart retrieved successfully"
-        );
+                ->getData(true),"User cart retrieved successfully");
         } else {
             return $this->sendError("User cart is empty");
         }
     }
 
+  // Remove a product from the cart
+    public function removeProductFromCart(Request $request)
+    {
+        $data = $request->validate([
+            'product' => 'required|uuid|exists:products,id',
+            'color' => 'required|uuid|exists:colors,id',
+        ]);
+
+        $user = auth()->user();
+        $cart = Cart::where('user_id', $user->id)->first();
+
+        if (!$cart) {
+            return $this->sendError("User cart is empty");
+        }
+
+        $product = Product::find($data['product']);
+        if (!in_array($data['color'], $product->color)) {
+            return $this->sendError('Selected color is not available for this product');
+        }
+
+        $color = $data['color'];
+
+        $cartItem = $cart->products()->where('product_id', $product->id)->where('cart_product.color', $color)->first();
+
+        if (!$cartItem) {
+            return $this->sendError("Product not found in cart");
+        }
+
+        $cartTotalReduction = $cartItem->pivot->price * $cartItem->pivot->quantity;
+
+        // Detach the product from the cart
+        $cart->products()->detach($product->id);
+
+        // Update the cart total
+        $cart->cart_total -= $cartTotalReduction;
+        $cart->save();
+
+        // $cart->load(['user','products']);
+
+        return $this->sendResponse(CartResource::make($cart)
+                ->response()
+                ->getData(true),"Product removed from cart successfully");
+    }
+
+    // Update cart product quantity
+    public function updateProductQuantity(Request $request)
+    {
+        $data = $request->validate([
+            'product' => 'required|uuid|exists:products,id',
+            'color' => 'required|uuid|exists:colors,id',
+            'quantity' => 'required|string',
+        ]);
+
+        $user = auth()->user();
+        $cart = Cart::where('user_id', $user->id)->first();
+
+        if (!$cart) {
+            return $this->sendError("User cart is empty");
+        }
+
+        $product = Product::find($data['product']);
+        if (!in_array($data['color'], $product->color)) {
+            return $this->sendError('Selected color is not available for this product');
+        }
+
+        $color = $data['color'];
+        $quantity = $data['quantity'];
+
+        if ($quantity > $product->quantity) {
+                return $this->sendError('The quantity exceeds available stock');
+        }
+
+        $cartItem = $cart->products()->where('product_id', $product->id)->where('cart_product.color', $color)->first();
+
+        if (!$cartItem) {
+            return $this->sendError("Product not found in cart");
+        }
+
+        // Calculate the old total price of this item in the cart
+        $oldTotal = $cartItem->pivot->price * $cartItem->pivot->quantity;
+
+        $cartItem->pivot->quantity = $quantity;
+        $cartItem->pivot->save();
+
+        // Calculate the new total price of this item in the cart
+        $newTotal = $cartItem->pivot->price * $quantity;
+
+        // Update the cart total
+        $cart->cart_total = $cart->cart_total - $oldTotal + $newTotal;
+        $cart->save();
+
+        
+        return $this->sendResponse(CartResource::make($cart)
+                ->response()
+                ->getData(true),"Product quantity updated successfully");
+    }
+
+
     //Empty user cart
     public function emptyUserCart()
     {
-        $id = auth()->id();
-        $user = User::where('id', $id)->first();
+        $user = auth()->user();
         Cart::where('user_id', $user->id)->delete();
 
        return $this->sendResponse([], "User cart emptied successfully" );

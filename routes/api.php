@@ -75,13 +75,13 @@ Route::middleware(['auth:sanctum', 'active'])->group(function(){
     Route::get('/wishlist',[ProductController::class,'getWishlist'])->name('products.get.wishlist');
     Route::put('/products/{product}/rate',[ProductController::class,'rateProduct'])->name('products.rate');
     Route::post('/products/add-cart',[UserController::class,'addToCart'])->name('products.cart');
+    Route::post('/products/remove-cart',[UserController::class,'removeProductFromCart'])->name('products.remove.cart');
+    Route::post('/products/update/cart/quantity',[UserController::class,'updateProductQuantity'])->name('products.update.cart');
     Route::get('/user-cart',[UserController::class,'getUserCart'])->name('user.cart');
     Route::delete('/empty-user-cart',[UserController::class,'emptyUserCart'])->name('empty.user.cart');
 
     //coupons
     Route::post('/cart/apply-coupon',[UserController::class,'applyCoupon'])->name('apply.coupon');
-
-
    
     Route::delete('/products-blogs/delete-img',[MediaController::class,'deleteFromCloudinary'])->name('products.delete');
     Route::post('/products/store/orders',[UserController::class,'createOrder'])->name('products.order');
