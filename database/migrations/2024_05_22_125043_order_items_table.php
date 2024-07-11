@@ -13,12 +13,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-      Schema::create('order_products', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(Str::uuid());
+      Schema::create('order_items', function (Blueprint $table) {
+            $table->uuid('id')->primary();
             $table->foreignUuid('order_id')->constrained('orders')->onDelete('cascade');
             $table->foreignUuid('product_id')->constrained('products')->onDelete('cascade');
-            $table->foreignUuid('color')->constrained('colors')->onDelete('cascade');
-            $table->integer('count');
+            $table->foreignUuid('color_id')->constrained('colors')->onDelete('cascade');
+            $table->integer('quantity');
             $table->decimal('price', 8, 2);
             $table->timestamps();
         });
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('order_products');
+        Schema::dropIfExists('order_items');
     }
 };

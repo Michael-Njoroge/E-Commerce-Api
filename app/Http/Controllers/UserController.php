@@ -6,6 +6,8 @@ use App\Models\User;
 use App\Models\Cart;
 use App\Models\Product;
 use App\Models\Order;
+use App\Models\ShippingInfo;
+use App\Models\PaymentInfo;
 use App\Models\Coupon;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\CartResource;
@@ -13,6 +15,7 @@ use App\Http\Resources\CartProductResource;
 use App\Http\Resources\OrderResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
@@ -344,6 +347,14 @@ class UserController extends Controller
     {
         $request->validate([
             'COD' => 'required|boolean',
+            'shipping_info' => 'required|array',
+            'shipping_info.firstname' => 'required|string',
+            'shipping_info.lastname' => 'required|string',
+            'shipping_info.address' => 'required|string',
+            'shipping_info.city' => 'required|string',
+            'shipping_info.state' => 'required|string',
+            'shipping_info.other' => 'nullable|string',
+            'shipping_info.pincode' => 'required|string',
         ]);
 
         if (!$request->COD) {
@@ -359,42 +370,60 @@ class UserController extends Controller
         $finalAmount = $cart->cart_total;
         // dd($cart);
 
-        $order = Order::create([
-            'user_id' => $user->id,
-            'payment_intent' => json_encode([
-                'id' => uniqid(),
-                'method' => 'COD',
-                'amount' => $finalAmount,
-                'status' => 'Cash on Delivery',
-                'created' => now(),
-                'currency' => 'usd'
-            ]),
-            'order_status' => 'Cash on Delivery'
-        ]);
-        foreach ($cart->products as $product) {
-            $order->products()->attach($product->id, [
-                'id' => Str::uuid(),
-                'count' => $product->pivot->count,
-                'color' => $product->pivot->color,
-                'price' => $product->pivot->price
+        DB::beginTransaction();
+
+
+        try {
+            // Create shipping info
+            $shippingInfo = ShippingInfo::create($request->shipping_info);
+
+            // Create payment info
+            $paymentInfo = PaymentInfo::create([
+                'razorpay_order_id' => Str::uuid(),
+                'razorpay_payment_id' => uniqid(),
             ]);
 
-            $product->decrement('quantity', $product->pivot->count);
-            $product->increment('sold', $product->pivot->count);
+            // Create order
+            $order = Order::create([
+                'user_id' => $user->id,
+                'shipping_info_id' => $shippingInfo->id,
+                'payment_info_id' => $paymentInfo->id,
+                'payed_at' => now(),
+                'total_price' => $finalAmount,
+                'order_status' => 'Cash on Delivery',
+            ]);
+
+            // Attach products to order
+            foreach ($cart->products as $product) {
+                $order->items()->create([
+                    'product_id' => $product->id,
+                    'color_id' => $product->pivot->color,
+                    'quantity' => $product->pivot->quantity,
+                    'price' => $product->pivot->price,
+                ]);
+
+                $product->decrement('quantity', $product->pivot->quantity);
+                $product->increment('sold', $product->pivot->quantity);
+            }
+
+            $cart->delete();
+
+            DB::commit();
+
+            $order->load('user', 'items', 'items.product', 'items.color', 'shippingInfo', 'paymentInfo');
+
+            return $this->sendResponse(OrderResource::make($order)->response()->getData(true), "Order created successfully");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->sendError('Order creation failed: ' . $e->getMessage());
         }
 
-
-        $cart->delete();
-        $order->load('user','products');
-        return $this->sendResponse(OrderResource::make($order)
-                ->response()
-                ->getData(true), "Order created successfully" );
     }
 
     //GetUser user orders
     public function getUserOrders(User $user)
     {
-        $orders = Order::where('user_id', $user->id)->with('products')->get();
+        $orders = Order::where('user_id', $user->id)->with(['items', 'items.product', 'items.color', 'shippingInfo', 'paymentInfo'])->get();
          // dd($orders->toArray());
 
         return $this->sendResponse(OrderResource::collection($orders)
@@ -405,7 +434,7 @@ class UserController extends Controller
      //Get all orders
     public function getAllOrders()
     {
-        $allOrders = Order::with(['products','user'])->get();
+        $allOrders = Order::with(['items', 'items.product', 'items.color', 'shippingInfo', 'paymentInfo'])->get();
 
         return $this->sendResponse(OrderResource::collection($allOrders)
                 ->response()
@@ -420,14 +449,9 @@ class UserController extends Controller
         ]);
         if($order){
             $order->order_status = $request->status;
-            
-            $paymentIntent = json_decode($order->payment_intent, true);
-            $paymentIntent['status'] = $request->status;
-            $order->payment_intent = json_encode($paymentIntent);
             $order->save();
-
             $updatedOrder = Order::where('id', $order->id)->first();
-            $updatedOrder->load('products');
+            $updatedOrder->load(['items', 'items.product', 'items.color', 'shippingInfo', 'paymentInfo']);
 
             return $this->sendResponse(OrderResource::make($updatedOrder)
                 ->response()

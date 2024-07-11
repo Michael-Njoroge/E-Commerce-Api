@@ -14,15 +14,18 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('user_id')->constrained('users');
-            $table->json('payment_intent')->nullable();
+            $table->timestamp('payed_at')->useCurrent();
+            $table->decimal('total_price', 10, 2);
+            $table->decimal('total_price_after', 10, 2)->nullable();
             $table->enum('order_status', [
+                'Ordered',
                 'Not Processed',
                 'Cash on Delivery',
                 'Processing',
                 'Dispatched',
                 'Cancelled',
                 'Delivered'
-            ])->default('Not Processed');
+            ])->default('Ordered');
             $table->timestamps();
         });
     }

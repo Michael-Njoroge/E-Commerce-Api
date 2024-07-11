@@ -13,15 +13,23 @@ class Order extends Model
 
     protected $guarded = [];
 
-    public function products(): BelongsToMany
+     public function shippingInfo()
     {
-       return $this->belongsToMany(Product::class, 'order_products', 'order_id', 'product_id')
-                    ->withPivot('count', 'color', 'price')
-                    ->withTimestamps();;
+        return $this->belongsTo(ShippingInfo::class);
+    }
+
+    public function paymentInfo()
+    {
+        return $this->belongsTo(PaymentInfo::class);
     }
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function items()
+    {
+        return $this->hasMany(OrderItem::class);
     }
 }
