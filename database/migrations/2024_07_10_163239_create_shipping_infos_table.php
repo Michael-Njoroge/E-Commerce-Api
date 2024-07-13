@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('lastname');
             $table->string('address');
             $table->string('city');
+            $table->string('country');
             $table->string('state');
             $table->string('other')->nullable();
             $table->string('pincode');

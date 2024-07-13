@@ -11,6 +11,8 @@ use App\Http\Controllers\ColorController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\EnquiryController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\StripeWebhookController;
 use Illuminate\Support\Facades\Route;
 
 /////////////////////////////// ROUTES THAT NEED NO AUTHENTICATION //////////////////////////////////////////////////////
@@ -42,6 +44,9 @@ Route::get('/blogs/{blog}',[BlogController::class,'show'])->name('blogs.show');
 Route::get('/coupons',[CouponController::class,'index'])->name('coupons.index');
 Route::get('/coupons/{coupon}',[CouponController::class,'show'])->name('coupons.show'); 
 Route::post('/products-blogs/upload',[MediaController::class,'upload'])->name('products.upload');
+
+    Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook'])->name('handle.webhook');
+
 
 ////////////////////////////// AUTHENTICATION ROUTES ///////////////////////////////////////////////////////////////////
 Route::group(['prefix'=>'auth'], function(){
@@ -85,6 +90,10 @@ Route::middleware(['auth:sanctum', 'active'])->group(function(){
    
     Route::delete('/products-blogs/delete-img',[MediaController::class,'deleteFromCloudinary'])->name('products.delete');
     Route::post('/products/store/orders',[UserController::class,'createOrder'])->name('products.order');
+
+    Route::post('/create-checkout-session', [CheckoutController::class, 'createCheckoutSession'])->name('create.payment');
+    // Route::post('/confirm-payment', [CheckoutController::class, 'confirmPayment'])->name('confirm.payment');
+
    
 
 });
@@ -147,6 +156,8 @@ Route::middleware(['auth:sanctum', 'admin', 'active'])->group(function(){
     Route::get('/block-unblock/{user}',[UserController::class,'blockUnblock'])->name('user.blockUnblock');
     Route::get('/change-role/{user}',[UserController::class,'role'])->name('user.role');
 });
+
+
 
 
 

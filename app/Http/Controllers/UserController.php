@@ -133,7 +133,7 @@ class UserController extends Controller
         $data = $request->validate([
             'product' => 'required|uuid|exists:products,id',
             'color' => 'required|uuid|exists:colors,id',
-            'quantity' => 'required|string',
+            'quantity' => 'required|numeric',
         ]);
 
         $user = auth()->user();
@@ -201,7 +201,7 @@ class UserController extends Controller
                 ->response()
                 ->getData(true),"User cart retrieved successfully");
         } else {
-            return $this->sendError("User cart is empty");
+            return $this->sendError("Your cart is empty");
         }
     }
 
@@ -255,7 +255,7 @@ class UserController extends Controller
         $data = $request->validate([
             'product' => 'required|uuid|exists:products,id',
             'color' => 'required|uuid|exists:colors,id',
-            'quantity' => 'required|string',
+            'quantity' => 'required|numeric',
         ]);
 
         $user = auth()->user();
@@ -346,20 +346,21 @@ class UserController extends Controller
     public function createOrder(Request $request)
     {
         $request->validate([
-            'COD' => 'required|boolean',
+            // 'COD' => 'required|boolean',
             'shipping_info' => 'required|array',
             'shipping_info.firstname' => 'required|string',
             'shipping_info.lastname' => 'required|string',
             'shipping_info.address' => 'required|string',
             'shipping_info.city' => 'required|string',
+            'shipping_info.country' => 'required|string',
             'shipping_info.state' => 'required|string',
             'shipping_info.other' => 'nullable|string',
             'shipping_info.pincode' => 'required|string',
         ]);
 
-        if (!$request->COD) {
-            return $this->sendError($error = 'Create cash order failed');
-        }
+        // if (!$request->COD) {
+        //     return $this->sendError($error = 'Create cash order failed');
+        // }
 
         $user = auth()->user();
         $cart = Cart::with('products')->where('user_id', $user->id)->first();
@@ -390,7 +391,7 @@ class UserController extends Controller
                 'payment_info_id' => $paymentInfo->id,
                 'payed_at' => now(),
                 'total_price' => $finalAmount,
-                'order_status' => 'Cash on Delivery',
+                // 'order_status' => 'Cash on Delivery',
             ]);
 
             // Attach products to order

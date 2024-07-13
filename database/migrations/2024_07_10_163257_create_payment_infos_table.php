@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('payment_infos', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('razorpay_order_id');
-            $table->string('razorpay_payment_id');
+            $table->string('stripe_payment_id');
+            $table->string('amount');
             $table->timestamps();
         });
 
