@@ -45,8 +45,9 @@ Route::get('/coupons',[CouponController::class,'index'])->name('coupons.index');
 Route::get('/coupons/{coupon}',[CouponController::class,'show'])->name('coupons.show'); 
 Route::post('/products-blogs/upload',[MediaController::class,'upload'])->name('products.upload');
 
-    Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook'])->name('handle.webhook');
-
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook'])->name('handle.webhook');
+Route::post('/users/forgot-password',[AuthController::class,'forgotPassword'])->name('users.forgotPassword');
+Route::post('/users/reset-password',[AuthController::class,'resetPassword'])->name('users.resetPassword');
 
 ////////////////////////////// AUTHENTICATION ROUTES ///////////////////////////////////////////////////////////////////
 Route::group(['prefix'=>'auth'], function(){
@@ -61,11 +62,8 @@ Route::middleware(['auth:sanctum', 'active'])->group(function(){
 
     //users
     Route::post('/users',[UserController::class,'store'])->name('users.store');
-    Route::put('/users/{user}',[UserController::class,'update'])->name('users.update');
+    Route::put('/users/update',[UserController::class,'update'])->name('users.update');
     Route::put('/users/change-password/{user}',[AuthController::class,'updatePassword'])->name('users.changePassword');
-    Route::post('/users/forgot-password/{user}',[AuthController::class,'forgotPassword'])->name('users.forgotPassword');
-    Route::post('/users/reset-password',[AuthController::class,'resetPassword'])->name('users.resetPassword');
-    Route::post('/users/reset-password',[AuthController::class,'resetPassword'])->name('users.resetPassword');
     Route::put('/users/save-address/{user}',[UserController::class,'saveAddress'])->name('save-address');
 
     //blogs

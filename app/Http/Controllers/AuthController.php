@@ -67,10 +67,8 @@ class AuthController extends Controller
         
         $user = User::where('email',$data['email'])->first();
 
-        $password = Hash::check($data['password'], $user->getAuthpassword());
-
-        if(!$user && !$password){
-            return $this->sendError($error="Invalid Credentials");
+        if (!$user || !Hash::check($data['password'], $user->getAuthPassword())) {
+            return $this->sendError($error = "Invalid Credentials");
         }
 
         $token = $user->createToken("access_token")->plainTextToken;
@@ -193,23 +191,23 @@ class AuthController extends Controller
     }
 
     //Forgot password token
-    public function forgotPassword(User $user)
+    public function forgotPassword(Request $request)
     {
+        $data = $request->validate([
+            'email' => 'required|email',
+        ]);
+        $user = User::where('email', $data['email'])
+                ->first();
         if($user){
             $email = $user->email;
             $token = $user->createResetPasswordToken();
             $user->save();
 
-            $domain = "http://localhost:8000/api/users";
-            $resetUrl = $domain.'/reset-password?email='.$email.'&token='.$token;
+            $resetUrl = env('BASE_URL').'/reset-password?email='.$email.'&token='.$token;
 
             Mail::to($email)->send(new ResetPassword($user,$resetUrl));
 
-            return response()->json([ 
-                'status' => true,
-                'token' => $token,
-                'message' => 'Please check your mail, we have sent a password reset link valid for the next 10 minutes'
-            ]);
+            return $this->sendResponse([], "Please check your mail, we have sent a password reset link valid for the next 10 minutes" );
         }
     }
 
@@ -233,12 +231,10 @@ class AuthController extends Controller
                 $user->password_changed_at = now();
                 $user->save();
 
-                return $this->sendResponse(UserResource::make($user)
-                ->response()
-                ->getData(true), "Password reset successfully" );
+                return $this->sendResponse([], "Password reset successfully, please use the new password in your next login" );
 
             } else {
-                return $this->sendError($error = "Invalid token or email provided, please try again");
+                return $this->sendError($error = "The reset has already expired, please try again");
             }
         } catch (Exception $error) {
             return $this->sendError($error->getMessage(), $code = 500); 
