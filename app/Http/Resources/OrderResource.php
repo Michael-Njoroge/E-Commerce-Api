@@ -15,7 +15,6 @@ class OrderResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $paymentIntent = json_decode($this->payment_intent, true);
         return [
         'id' => $this->id,
         'user' => new UserResource($this->whenLoaded('user')),

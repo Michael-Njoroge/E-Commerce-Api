@@ -343,87 +343,88 @@ class UserController extends Controller
     }
 
     //Create order
-    public function createOrder(Request $request)
-    {
-        $request->validate([
-            // 'COD' => 'required|boolean',
-            'shipping_info' => 'required|array',
-            'shipping_info.firstname' => 'required|string',
-            'shipping_info.lastname' => 'required|string',
-            'shipping_info.address' => 'required|string',
-            'shipping_info.city' => 'required|string',
-            'shipping_info.country' => 'required|string',
-            'shipping_info.state' => 'required|string',
-            'shipping_info.other' => 'nullable|string',
-            'shipping_info.pincode' => 'required|string',
-        ]);
+    // public function createOrder(Request $request)
+    // {
+    //     $request->validate([
+    //         // 'COD' => 'required|boolean',
+    //         'shipping_info' => 'required|array',
+    //         'shipping_info.firstname' => 'required|string',
+    //         'shipping_info.lastname' => 'required|string',
+    //         'shipping_info.address' => 'required|string',
+    //         'shipping_info.city' => 'required|string',
+    //         'shipping_info.country' => 'required|string',
+    //         'shipping_info.state' => 'required|string',
+    //         'shipping_info.other' => 'nullable|string',
+    //         'shipping_info.pincode' => 'required|string',
+    //     ]);
 
-        // if (!$request->COD) {
-        //     return $this->sendError($error = 'Create cash order failed');
-        // }
+    //     // if (!$request->COD) {
+    //     //     return $this->sendError($error = 'Create cash order failed');
+    //     // }
 
-        $user = auth()->user();
-        $cart = Cart::with('products')->where('user_id', $user->id)->first();
+    //     $user = auth()->user();
+    //     $cart = Cart::with('products')->where('user_id', $user->id)->first();
 
-         if (!$cart || $cart->products->isEmpty()) {
-            return $this->sendError('Your cart is empty.');
-        }
-        $finalAmount = $cart->cart_total;
-        // dd($cart);
+    //      if (!$cart || $cart->products->isEmpty()) {
+    //         return $this->sendError('Your cart is empty.');
+    //     }
+    //     $finalAmount = $cart->cart_total;
+    //     // dd($cart);
 
-        DB::beginTransaction();
+    //     DB::beginTransaction();
 
 
-        try {
-            // Create shipping info
-            $shippingInfo = ShippingInfo::create($request->shipping_info);
+    //     try {
+    //         // Create shipping info
+    //         $shippingInfo = ShippingInfo::create($request->shipping_info);
 
-            // Create payment info
-            $paymentInfo = PaymentInfo::create([
-                'razorpay_order_id' => Str::uuid(),
-                'razorpay_payment_id' => uniqid(),
-            ]);
+    //         // Create payment info
+    //         $paymentInfo = PaymentInfo::create([
+    //             'razorpay_order_id' => Str::uuid(),
+    //             'razorpay_payment_id' => uniqid(),
+    //         ]);
 
-            // Create order
-            $order = Order::create([
-                'user_id' => $user->id,
-                'shipping_info_id' => $shippingInfo->id,
-                'payment_info_id' => $paymentInfo->id,
-                'payed_at' => now(),
-                'total_price' => $finalAmount,
-                // 'order_status' => 'Cash on Delivery',
-            ]);
+    //         // Create order
+    //         $order = Order::create([
+    //             'user_id' => $user->id,
+    //             'shipping_info_id' => $shippingInfo->id,
+    //             'payment_info_id' => $paymentInfo->id,
+    //             'payed_at' => now(),
+    //             'total_price' => $finalAmount,
+    //             // 'order_status' => 'Cash on Delivery',
+    //         ]);
 
-            // Attach products to order
-            foreach ($cart->products as $product) {
-                $order->items()->create([
-                    'product_id' => $product->id,
-                    'color_id' => $product->pivot->color,
-                    'quantity' => $product->pivot->quantity,
-                    'price' => $product->pivot->price,
-                ]);
+    //         // Attach products to order
+    //         foreach ($cart->products as $product) {
+    //             $order->items()->create([
+    //                 'product_id' => $product->id,
+    //                 'color_id' => $product->pivot->color,
+    //                 'quantity' => $product->pivot->quantity,
+    //                 'price' => $product->pivot->price,
+    //             ]);
 
-                $product->decrement('quantity', $product->pivot->quantity);
-                $product->increment('sold', $product->pivot->quantity);
-            }
+    //             $product->decrement('quantity', $product->pivot->quantity);
+    //             $product->increment('sold', $product->pivot->quantity);
+    //         }
 
-            $cart->delete();
+    //         $cart->delete();
 
-            DB::commit();
+    //         DB::commit();
 
-            $order->load('user', 'items', 'items.product', 'items.color', 'shippingInfo', 'paymentInfo');
+    //         $order->load('user', 'items', 'items.product', 'items.color', 'shippingInfo', 'paymentInfo');
 
-            return $this->sendResponse(OrderResource::make($order)->response()->getData(true), "Order created successfully");
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return $this->sendError('Order creation failed: ' . $e->getMessage());
-        }
+    //         return $this->sendResponse(OrderResource::make($order)->response()->getData(true), "Order created successfully");
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         return $this->sendError('Order creation failed: ' . $e->getMessage());
+    //     }
 
-    }
+    // }
 
     //GetUser user orders
-    public function getUserOrders(User $user)
+    public function getUserOrders()
     {
+        $user = auth()->user();
         $orders = Order::where('user_id', $user->id)->with(['items', 'items.product', 'items.color', 'shippingInfo', 'paymentInfo'])->get();
          // dd($orders->toArray());
 

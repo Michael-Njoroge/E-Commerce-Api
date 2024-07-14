@@ -90,6 +90,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function(){
    
     Route::delete('/products-blogs/delete-img',[MediaController::class,'deleteFromCloudinary'])->name('products.delete');
     Route::post('/products/store/orders',[UserController::class,'createOrder'])->name('products.order');
+    Route::get('/user-orders',[UserController::class,'getUserOrders'])->name('get.user.orders');
 
     Route::post('/create-checkout-session', [CheckoutController::class, 'createCheckoutSession'])->name('create.payment');
     // Route::post('/confirm-payment', [CheckoutController::class, 'confirmPayment'])->name('confirm.payment');
@@ -108,7 +109,6 @@ Route::middleware(['auth:sanctum', 'admin', 'active'])->group(function(){
 
     //orders
     Route::put('/status/order/{order}',[UserController::class,'updateOrderStatus'])->name('products.update.status');
-    Route::get('/user-orders/{user}',[UserController::class,'getUserOrders'])->name('get.user.orders');
     Route::get('/all-orders',[UserController::class,'getAllOrders'])->name('get.allOrders');
 
 
