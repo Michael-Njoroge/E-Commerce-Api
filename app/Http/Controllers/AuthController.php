@@ -103,11 +103,10 @@ class AuthController extends Controller
         
         $admin = User::where('email',$data['email'])->first();
 
-        $password = Hash::check($data['password'], $admin->getAuthpassword());
-
-        if(!$admin && !$password){
-            return $this->sendError($error="Invalid Credentials");
+        if (!$admin || !Hash::check($data['password'], $admin->getAuthPassword())) {
+            return $this->sendError($error = "Invalid Credentials");
         }
+
 
         if($admin->role !== 'admin'){
             return $this->sendError($error="Unauthorized");

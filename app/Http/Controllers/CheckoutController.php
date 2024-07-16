@@ -26,7 +26,6 @@ class CheckoutController extends Controller
             'shipping_info.country' => 'required|string',
             'shipping_info.state' => 'required|string',
             'shipping_info.pincode' => 'required|string',
-            'shipping_amount' => 'required|string',
             'shipping_amount' => 'required|numeric',
         ]);
 
@@ -39,10 +38,8 @@ class CheckoutController extends Controller
 
         Stripe::setApiKey(env('STRIPE_SECRET'));
         
-         $lineItems = $cart->products->map(function($product) {
-            $imageUrl = $product->media->isNotEmpty() ? $product->media->first()->file_url : '';
-            // dd($product->pivot->quantity);
-            // dd($product->media);
+        $lineItems = $cart->products->map(function($product) {
+        $imageUrl = $product->media->isNotEmpty() ? $product->media->first()->file_url : '';
 
             return [
                 'price_data' => [
@@ -59,19 +56,7 @@ class CheckoutController extends Controller
 
         $shippingAmount = $request->shipping_amount; 
 
-        // Add shipping as a line item
-        $lineItems[] = [
-            'price_data' => [
-                'currency' => 'usd',
-                'product_data' => [
-                    'name' => 'Shipping',
-                ],
-                'unit_amount' => $shippingAmount * 100,
-            ],
-            'quantity' => 1,
-        ];
-
-        try {
+         try {
             $checkoutSession = StripeSession::create([
                 'payment_method_types' => ['card'],
                 'line_items' => $lineItems,
@@ -82,8 +67,32 @@ class CheckoutController extends Controller
                     'user_id' => $user->id,
                     'shipping_info' => json_encode($request->shipping_info),
                 ],
+                'shipping_address_collection' => [
+                    'allowed_countries' => ['KE'],
+                ],
+                'shipping_options' => [
+                    [
+                        'shipping_rate_data' => [
+                            'type' => 'fixed_amount',
+                            'fixed_amount' => [
+                                'amount' => $shippingAmount * 100,
+                                'currency' => 'usd',
+                            ],
+                            'display_name' => 'Standard shipping',
+                            'delivery_estimate' => [
+                                'minimum' => [
+                                    'unit' => 'business_day',
+                                    'value' => 5,
+                                ],
+                                'maximum' => [
+                                    'unit' => 'business_day',
+                                    'value' => 7,
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
             ]);
-
             return response()->json(['id' => $checkoutSession->id]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->text('description');
             $table->decimal('price', 8, 2);
-            $table->string('category');
-            $table->string('brand');
+            $table->foreignUuid('brand')->constrained('brands')->onDelete('cascade');
+            $table->foreignUuid('category')->constrained('product_categories')->onDelete('cascade');
             $table->integer('quantity');
             $table->integer('sold')->default(0);
             $table->decimal('total_ratings', 8, 2)->default(0);

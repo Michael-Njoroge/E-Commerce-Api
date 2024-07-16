@@ -18,56 +18,75 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+   public function index(Request $request)
     {
         try {
-        // Filtering products
-        $query = Product::query();
+            // Initialize the query with relationships
+            $query = Product::with(['media', 'brand', 'category', 'ratings.user']);
 
-        // Sorting products
-        $sortBy = $request->query('sort', '-created_at');
-        $sortFields = explode(',', $sortBy);
-        
-        foreach ($sortFields as $field) {
-            // Determine sorting direction (ascending or descending)
-            $direction = Str::startsWith($field, '-') ? 'desc' : 'asc';
-            $field = ltrim($field, '-');
-
-            // Apply sorting to the query
-            $query->orderBy($field, $direction);
-        }
-
-        // Paginating products
-        $page = $request->query('page');
-        $limit = $request->query('limit', 10);
-        $products = $query->paginate($limit);
-        $products = $query->with(['media', 'brand','category','ratings.user'])->paginate($limit);
-
-        // Remove fields from the request query parameters
-        $excludeFields = ['page', 'sort', 'limit'];
-        foreach ($excludeFields as $field) {
-            $request->query->remove($field);
-        }
-
-        // Convert remaining query parameters to Eloquent query
-        foreach ($request->query() as $key => $value) {
-            // Apply operators for comparison (e.g., $gte, $gt, $lte, $lt)
-            if (in_array($key, ['gte', 'gt', 'lte', 'lt'])) {
-                $key = str_replace(['gte', 'gt', 'lte', 'lt'], ['$gte', '$gt', '$lte', '$lt'], $key);
+             // Filtering
+            if ($request->has('brand')) {
+                $query->whereHas('brand', function($q) use ($request) {
+                    $q->where('title', $request->query('brand'));
+                });
             }
 
-            // Add conditions to the query
-            $query->where($key, $value);
+            if ($request->has('category')) {
+                $query->whereHas('category', function($q) use ($request) {
+                    $q->where('title', $request->query('category'));
+                });
+            }
 
-        }
+            if ($request->has('tag')) {
+                $query->whereJsonContains('tags', $request->query('tag'));
+            }
 
-        return $this->sendResponse(ProductResource::collection($products)
+            if ($request->has('color')) {
+                $query->whereJsonContains('color', $request->query('color'));
+                
+            }
+
+            if ($request->has('minPrice')) {
+                $query->where('price', '>=', $request->query('minPrice'));
+            }
+
+            if ($request->has('maxPrice')) {
+                $query->where('price', '<=', $request->query('maxPrice'));
+            }
+
+            // Sorting
+            if ($request->has('sort')) {
+                $sortFields = explode(',', $request->query('sort'));
+                foreach ($sortFields as $sortField) {
+                    $direction = 'asc';
+                    if (substr($sortField, 0, 1) === '-') {
+                        $direction = 'desc';
+                        $sortField = substr($sortField, 1);
+                    }
+                    $query->orderBy($sortField, $direction);
+                }
+            } else {
+                $query->orderBy('created_at', 'desc');
+            }
+
+            // Limiting fields
+            if ($request->has('fields')) {
+                $fields = explode(',', $request->query('fields'));
+                $query->select($fields);
+            }
+
+            // Pagination
+            $page = $request->query('page', 1);
+            $limit = $request->query('limit', 20);
+            $products = $query->paginate($limit, ['*'], 'page', $page);
+
+            return $this->sendResponse(ProductResource::collection($products)
                 ->response()
-                ->getData(true), "Products retrieved successfully" );
-        }
-        catch (\Exception $e) {
-        // Handle exceptions
-        return response()->json(['error' => $e->getMessage()], 500);
+                ->getData(true), "Products retrieved successfully");
+
+        } catch (\Exception $e) {
+            // Handle exceptions
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
@@ -230,9 +249,11 @@ class ProductController extends Controller
         $request->validate([
             'star' => 'required|integer|min:1|max:5',
             'comment' => 'nullable|string',
+            'product' => 'required|uuid|exists:products,id'
         ]);
 
         $user = auth()->user();
+        $product = Product::where('id',$request->product)->first();
 
         $existingRating = $product->ratings()->where('user_id', $user->id)->first();
 

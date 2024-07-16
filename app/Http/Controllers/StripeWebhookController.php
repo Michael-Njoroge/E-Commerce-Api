@@ -44,8 +44,9 @@ class StripeWebhookController extends Controller
             $shippingInfo = json_decode($session->metadata->shipping_info, true);
             $paymentId = $session->payment_intent;
             $amountTotal = $session->amount_total / 100;
-            // $shippingAmount = $session->shipping_cost ? $session->shipping_cost->amount_total / 100 : 0;
-            // $discountAmount = isset($session->total_details->amount_discount) ? $session->total_details->amount_discount / 100 : 0;
+            $shippingAmount = isset($session->shipping_cost) ? $session->shipping_cost->amount_total / 100 : 0;
+            $discountAmount = isset($session->total_details->amount_discount) ? $session->total_details->amount_discount / 100 : 0;
+
 
             $shipping = ShippingInfo::create($shippingInfo);
 
@@ -54,14 +55,16 @@ class StripeWebhookController extends Controller
                 'amount' => $amountTotal,
             ]);
 
+            $totalPriceAfter = $amountTotal + $shippingAmount - $discountAmount;
+
             $order = Order::create([
                 'user_id' => $userId,
                 'shipping_info_id' => $shipping->id,
                 'payment_info_id' => $payment->id,
                 'total_price' => $amountTotal,
-                // 'total_price_after' => $amountTotal + $shippingAmount,
-                // 'shipping_amount' => $shippingAmount,
-                // 'discount_amount' => $discountAmount,
+                'total_price_after' => $totalPriceAfter,
+                'shipping_amount' => $shippingAmount,
+                'discount_amount' => $discountAmount,
                 'order_status' => 'Processing',
             ]);
 

@@ -76,7 +76,9 @@ Route::middleware(['auth:sanctum', 'active'])->group(function(){
     //products
     Route::put('/wishlist',[ProductController::class,'addToWishlist'])->name('products.wishlist');
     Route::get('/wishlist',[ProductController::class,'getWishlist'])->name('products.get.wishlist');
-    Route::put('/products/{product}/rate',[ProductController::class,'rateProduct'])->name('products.rate');
+    Route::put('/products/rate',[ProductController::class,'rateProduct'])->name('products.rate');
+
+    //cart
     Route::post('/products/add-cart',[UserController::class,'addToCart'])->name('products.cart');
     Route::post('/products/remove-cart',[UserController::class,'removeProductFromCart'])->name('products.remove.cart');
     Route::post('/products/update/cart/quantity',[UserController::class,'updateProductQuantity'])->name('products.update.cart');
@@ -90,11 +92,12 @@ Route::middleware(['auth:sanctum', 'active'])->group(function(){
     Route::post('/products/store/orders',[UserController::class,'createOrder'])->name('products.order');
     Route::get('/user-orders',[UserController::class,'getUserOrders'])->name('get.user.orders');
 
+    //orders
     Route::post('/create-checkout-session', [CheckoutController::class, 'createCheckoutSession'])->name('create.payment');
-    // Route::post('/confirm-payment', [CheckoutController::class, 'confirmPayment'])->name('confirm.payment');
+    Route::get('/orders-month-wise', [UserController::class, 'getOrdersMonthWise'])->name('orders.month');
+    Route::get('/orders-yearly-total', [UserController::class, 'getYearlyTotalOrders'])->name('orders.yearly.total');
 
-   
-
+  
 });
 
 /////////////////////////////// ROUTES THAT REQUIRE ACTIVATION, AUTHENTICATION AND ADMIN PERMISSIONS ///////////////////
