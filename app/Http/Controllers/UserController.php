@@ -382,12 +382,15 @@ class UserController extends Controller
                     ->first();
             $orderCount = Order::whereBetween('created_at', [$startOfMonth, $endOfMonth])
                 ->count();
+            $amount = round($orders->amount ?? 0);
 
-           $data[] = [
-                'month' => $monthName,
-                'amount' => $orders->amount ?? 0,
-                'count' => $orderCount,
-            ];
+        if ($amount > 0 || $orderCount > 0) {
+                $data[] = [
+                    'month' => $monthName,
+                    'amount' => $amount,
+                    'count' => $orderCount,
+                ];
+            }
         }
          return response()->json([
             'success' => true,
@@ -421,7 +424,7 @@ class UserController extends Controller
         $responses[] = [
             'year' => $year,
             'total_orders' => $totalOrders,
-            'total_amount' => $totalAmount,
+            'total_amount' => round($totalAmount),
         ];
     }
 
