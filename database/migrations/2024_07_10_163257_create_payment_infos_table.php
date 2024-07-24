@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('payment_infos', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('stripe_payment_id');
+            $table->string('payment_method');
+            $table->string('transaction_id');
+            $table->string('payment_description');
             $table->string('amount');
             $table->timestamps();
         });

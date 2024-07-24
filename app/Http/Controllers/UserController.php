@@ -345,9 +345,8 @@ class UserController extends Controller
     }
 
     //Get user orders
-    public function getUserOrders()
+    public function getUserOrders(User $user)
     {
-        $user = auth()->user();
         $orders = Order::where('user_id', $user->id)->with(['items', 'items.product', 'items.color', 'shippingInfo', 'paymentInfo'])->get();
          // dd($orders->toArray());
 
@@ -359,12 +358,18 @@ class UserController extends Controller
     //Get all orders
     public function getAllOrders()
     {
-        $allOrders = Order::with(['items', 'items.product', 'items.color', 'shippingInfo', 'paymentInfo'])->get();
+        // Fetch all orders with relationships
+        $allOrders = Order::with(['items', 'user', 'items.product', 'items.color', 'shippingInfo', 'paymentInfo'])->get();
 
-        return $this->sendResponse(OrderResource::collection($allOrders)
-                ->response()
-                ->getData(true), "All orders retrieved successfully" );
+        // Group orders by users
+        $groupedOrders = $allOrders->groupBy('user_id')->map(function ($orders, $userId) {
+            return [
+                'orders' => OrderResource::collection($orders)->resolve(),
+            ];
+        })->values();
+        return $this->sendResponse(['data' => $groupedOrders], "All orders retrieved successfully");
     }
+
 
     //Get orders month wise
     public function getOrdersMonthWise()
@@ -439,13 +444,13 @@ class UserController extends Controller
     public function updateOrderStatus(Request $request, Order $order)
     {
         $request->validate([
-            'status' => 'required|string|in:Processing,Dispatched,Cancelled,Delivered'
+            'status' => 'required|string|in:Ordered,Processing,Dispatched,Cancelled,Delivered'
         ]);
         if($order){
             $order->order_status = $request->status;
             $order->save();
             $updatedOrder = Order::where('id', $order->id)->first();
-            $updatedOrder->load(['items', 'items.product', 'items.color', 'shippingInfo', 'paymentInfo']);
+            $updatedOrder->load(['items', 'user', 'items.product', 'items.color', 'shippingInfo', 'paymentInfo']);
 
             return $this->sendResponse(OrderResource::make($updatedOrder)
                 ->response()

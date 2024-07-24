@@ -12,7 +12,7 @@ use App\Http\Controllers\CouponController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\EnquiryController;
 use App\Http\Controllers\CheckoutController;
-use App\Http\Controllers\StripeWebhookController;
+use App\Http\Controllers\MpesaController;
 use Illuminate\Support\Facades\Route;
 
 /////////////////////////////// ROUTES THAT NEED NO AUTHENTICATION //////////////////////////////////////////////////////
@@ -45,7 +45,9 @@ Route::get('/coupons',[CouponController::class,'index'])->name('coupons.index');
 Route::get('/coupons/{coupon}',[CouponController::class,'show'])->name('coupons.show'); 
 Route::post('/products-blogs/upload',[MediaController::class,'upload'])->name('products.upload');
 
-Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook'])->name('handle.webhook');
+Route::post('/payment', [MpesaController::class, 'initiatePayment'])->name('payment.initiate');
+Route::post('/confirmation', [MpesaController::class, 'handleCallback']);
+Route::post('/validation', [MpesaController::class, 'validation']);
 Route::post('/users/forgot-password',[AuthController::class,'forgotPassword'])->name('users.forgotPassword');
 Route::post('/users/reset-password',[AuthController::class,'resetPassword'])->name('users.resetPassword');
 
@@ -90,7 +92,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function(){
    
     Route::delete('/products-blogs/delete-img',[MediaController::class,'deleteFromCloudinary'])->name('products.delete');
     Route::post('/products/store/orders',[UserController::class,'createOrder'])->name('products.order');
-    Route::get('/user-orders',[UserController::class,'getUserOrders'])->name('get.user.orders');
+    Route::get('/user-orders/{user}',[UserController::class,'getUserOrders'])->name('get.user.orders');
 
     //orders
     Route::post('/create-checkout-session', [CheckoutController::class, 'createCheckoutSession'])->name('create.payment');
